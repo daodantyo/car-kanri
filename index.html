@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>車の管理（公開版）</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { margin:0; font-family: -apple-system, "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif; background:#f1f5f9; color:#1e293b; }
+  .wrap { max-width:640px; margin:0 auto; padding:20px 16px 120px; }
+  h1 { font-size:20px; margin:0; font-weight:700; }
+  .head { display:flex; align-items:center; gap:8px; margin-bottom:16px; }
+  .logo { width:40px; height:40px; border-radius:12px; background:#1e293b; color:#fff; display:flex; align-items:center; justify-content:center; font-size:22px; }
+  .card { background:#fff; border-radius:16px; box-shadow:0 1px 3px rgba(0,0,0,.06); }
+  .tabs { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; padding:6px; margin-bottom:16px; }
+  .tab { border:none; background:none; border-radius:12px; padding:10px 0; font-size:15px; font-weight:600; color:#64748b; cursor:pointer; font-family:inherit; }
+  .tab.on { background:#1e293b; color:#fff; }
+  .monthnav { display:flex; align-items:center; justify-content:space-between; padding:8px; margin-bottom:16px; }
+  .monthnav button { border:none; background:none; padding:8px; border-radius:12px; color:#64748b; cursor:pointer; font-size:20px; }
+  .monthnav button:hover { background:#f1f5f9; }
+  .monthlabel { font-size:18px; font-weight:600; }
+  .total { border-radius:16px; padding:20px; color:#fff; margin-bottom:16px; box-shadow:0 1px 3px rgba(0,0,0,.06); }
+  .total.dark { background:#1e293b; } .total.indigo { background:#4f46e5; }
+  .total .l { font-size:13px; opacity:.75; } .total .n { font-size:30px; font-weight:700; margin-top:4px; }
+  .cats { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
+  .catcard { border-radius:16px; padding:16px; border:1px solid; }
+  .catcard .l { font-size:13px; font-weight:500; color:#475569; display:flex; gap:6px; align-items:center; }
+  .catcard .n { font-size:19px; font-weight:700; margin-top:4px; }
+  .sky{background:#f0f9ff;border-color:#bae6fd;} .sky .n{color:#0369a1;}
+  .amber{background:#fffbeb;border-color:#fde68a;} .amber .n{color:#b45309;}
+  .emerald{background:#ecfdf5;border-color:#a7f3d0;} .emerald .n{color:#047857;}
+  .violet{background:#f5f3ff;border-color:#ddd6fe;} .violet .n{color:#6d28d9;}
+  .listhead { font-size:13px; font-weight:600; color:#64748b; padding:0 4px; margin-bottom:8px; }
+  .empty { border:2px dashed #cbd5e1; border-radius:16px; background:#fff; padding:32px; text-align:center; color:#94a3b8; line-height:1.7; }
+  .row { background:#fff; border-radius:16px; box-shadow:0 1px 3px rgba(0,0,0,.06); padding:14px; margin-bottom:8px; }
+  .rowtop { display:flex; align-items:center; gap:12px; }
+  .dot { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; color:#fff; }
+  .dot.sky{background:#0ea5e9;} .dot.amber{background:#f59e0b;} .dot.emerald{background:#10b981;} .dot.violet{background:#8b5cf6;}
+  .rowmid { flex:1; min-width:0; }
+  .chip { display:inline-block; border-radius:999px; padding:2px 8px; font-size:12px; font-weight:500; }
+  .chip.sky{background:#e0f2fe;color:#0369a1;} .chip.amber{background:#fef3c7;color:#b45309;} .chip.emerald{background:#d1fae5;color:#047857;} .chip.violet{background:#ede9fe;color:#6d28d9;}
+  .date { font-size:12px; color:#94a3b8; margin-left:8px; }
+  .memo { font-size:14px; color:#475569; margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .amt { font-weight:600; text-align:right; flex-shrink:0; }
+  .del { border:none; background:none; padding:6px; border-radius:8px; color:#cbd5e1; cursor:pointer; flex-shrink:0; }
+  .del:hover { background:#fef2f2; color:#ef4444; }
+  .paybtn { margin-top:12px; width:100%; display:flex; align-items:center; justify-content:center; gap:6px; border:none; background:#ecfdf5; color:#047857; border-radius:12px; padding:10px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; }
+  .paybtn:hover { background:#d1fae5; }
+  .vcard { background:#fff; border-radius:16px; box-shadow:0 1px 3px rgba(0,0,0,.06); padding:16px; margin-bottom:8px; }
+  .vtop { display:flex; justify-content:space-between; align-items:flex-start; }
+  .vmodel { font-size:18px; font-weight:700; } .vgrade { font-size:14px; color:#64748b; }
+  .vmeta { margin-top:12px; display:flex; flex-wrap:wrap; gap:4px 16px; font-size:14px; color:#475569; }
+  .vcost { margin-top:8px; border-top:1px solid #f1f5f9; padding-top:8px; text-align:right; }
+  .docbtn { width:100%; display:flex; align-items:center; justify-content:center; gap:8px; border:2px solid #1e293b; background:#fff; color:#1e293b; border-radius:16px; padding:12px; font-size:15px; font-weight:600; cursor:pointer; margin-bottom:16px; font-family:inherit; }
+  .docbtn:hover { background:#f8fafc; }
+  .fab { position:fixed; left:0; right:0; bottom:0; padding:16px; background:linear-gradient(to top,#f1f5f9 60%,transparent); z-index:10; }
+  .fabinner { max-width:640px; margin:0 auto; }
+  .addbtn { width:100%; display:flex; align-items:center; justify-content:center; gap:8px; border:none; color:#fff; border-radius:16px; padding:16px; font-size:18px; font-weight:600; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,.15); font-family:inherit; }
+  .addbtn.dark{background:#1e293b;} .addbtn.indigo{background:#4f46e5;}
+  .overlay { position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:20; display:flex; align-items:flex-end; justify-content:center; }
+  @media(min-width:640px){ .overlay{align-items:center;} }
+  .sheet { width:100%; max-width:640px; background:#fff; border-radius:24px 24px 0 0; padding:20px; max-height:92vh; overflow-y:auto; }
+  @media(min-width:640px){ .sheet{border-radius:24px;} }
+  .sheethead { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+  .sheethead h2 { font-size:18px; margin:0; }
+  .xbtn { border:none; background:none; padding:6px; border-radius:8px; color:#94a3b8; cursor:pointer; font-size:20px; }
+  label { display:block; font-size:14px; font-weight:500; color:#475569; margin-bottom:4px; }
+  input, select { width:100%; border:1px solid #cbd5e1; border-radius:12px; padding:12px 16px; font-size:16px; margin-bottom:16px; font-family:inherit; }
+  input:focus, select:focus { outline:none; border-color:#64748b; }
+  .catgrid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px; }
+  .catpick { border:2px solid #e2e8f0; background:#fff; color:#64748b; border-radius:12px; padding:12px; font-size:16px; font-weight:500; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; font-family:inherit; }
+  .catpick.on.sky{background:#f0f9ff;color:#0369a1;border-color:#0369a1;}
+  .catpick.on.amber{background:#fffbeb;color:#b45309;border-color:#b45309;}
+  .catpick.on.emerald{background:#ecfdf5;color:#047857;border-color:#047857;}
+  .catpick.on.violet{background:#f5f3ff;color:#6d28d9;border-color:#6d28d9;}
+  .yeninput { position:relative; }
+  .yeninput span { position:absolute; left:16px; top:12px; color:#94a3b8; font-size:18px; }
+  .yeninput input { padding-left:36px; }
+  .submit { width:100%; border:none; color:#fff; border-radius:16px; padding:16px; font-size:18px; font-weight:600; cursor:pointer; font-family:inherit; }
+  .submit.dark{background:#1e293b;} .submit.indigo{background:#4f46e5;}
+
+  /* 書類 */
+  .docoverlay { position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:30; overflow-y:auto; padding:12px; }
+  .docmodal { max-width:720px; margin:16px auto; background:#fff; border-radius:16px; padding:16px; box-shadow:0 10px 30px rgba(0,0,0,.2); }
+  .doctypesw { display:grid; grid-template-columns:1fr 1fr; gap:8px; background:#f1f5f9; border-radius:12px; padding:4px; margin-bottom:16px; }
+  .doctypesw button { border:none; background:none; border-radius:8px; padding:8px; font-size:14px; font-weight:600; color:#64748b; cursor:pointer; font-family:inherit; }
+  .doctypesw button.on { background:#fff; color:#1e293b; box-shadow:0 1px 2px rgba(0,0,0,.1); }
+  .issuerbox { background:#f8fafc; border-radius:12px; padding:12px; margin-bottom:12px; }
+  .issuerbox .t { font-size:14px; font-weight:600; color:#475569; margin-bottom:8px; }
+  .issuerbox input { font-size:14px; padding:8px 12px; margin-bottom:8px; }
+  .itemrow { border:1px solid #e2e8f0; border-radius:12px; padding:10px; margin-bottom:8px; }
+  .itemrow .r1 { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+  .itemrow select { width:auto; margin:0; padding:6px 8px; font-size:14px; }
+  .itemrow .desc { flex:1; min-width:0; margin:0; padding:6px 8px; font-size:14px; }
+  .itemrow .r2 { display:flex; gap:8px; align-items:center; font-size:14px; }
+  .itemrow .r2 .lbl { color:#94a3b8; }
+  .itemrow .qty { width:64px; margin:0; padding:6px 8px; font-size:14px; text-align:right; }
+  .itemrow .prc { flex:1; margin:0; padding:6px 8px 6px 24px; font-size:14px; text-align:right; }
+  .itemrow .prcwrap { position:relative; flex:1; }
+  .itemrow .prcwrap span { position:absolute; left:8px; top:7px; color:#94a3b8; }
+  .addrow { width:100%; border:2px dashed #cbd5e1; background:none; border-radius:12px; padding:10px; font-size:14px; font-weight:500; color:#64748b; cursor:pointer; margin-bottom:16px; font-family:inherit; }
+  .prevnote { border-top:1px dashed #e2e8f0; padding-top:12px; text-align:center; font-size:12px; color:#94a3b8; margin-bottom:16px; }
+  .docbtns { display:flex; gap:8px; margin-top:16px; }
+  .docbtns .close { flex:1; border:1px solid #cbd5e1; background:none; border-radius:12px; padding:12px; font-weight:600; color:#475569; cursor:pointer; font-family:inherit; }
+  .docbtns .print { flex:2; border:none; background:#1e293b; color:#fff; border-radius:12px; padding:12px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; font-family:inherit; }
+
+  /* 書類プレビュー（印刷対象） */
+  .sheetpaper { border:1px solid #e2e8f0; border-radius:12px; padding:24px; font-family:"Hiragino Mincho ProN","Yu Mincho",serif; }
+  .doctitle { text-align:center; font-size:24px; font-weight:700; letter-spacing:8px; margin-bottom:24px; }
+  .docheader { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:24px; }
+  .docto { border-bottom:2px solid #1e293b; padding-bottom:4px; font-size:18px; font-weight:600; }
+  .doclead { font-size:14px; margin-top:12px; }
+  .docgrand { margin-top:16px; background:#f1f5f9; border-radius:8px; padding:12px 16px; }
+  .docgrand .l { font-size:12px; color:#64748b; } .docgrand .n { font-size:22px; font-weight:700; }
+  .docissuer { text-align:right; font-size:12px; line-height:1.7; margin-left:16px; flex-shrink:0; }
+  .docissuer .name { font-size:14px; font-weight:600; margin-top:12px; }
+  table.doctable { width:100%; border-collapse:collapse; font-size:14px; }
+  table.doctable th { border-top:2px solid #1e293b; border-bottom:2px solid #1e293b; padding:6px 4px; }
+  table.doctable td { border-bottom:1px solid #e2e8f0; padding:6px 4px; }
+  .ta-l{text-align:left;} .ta-r{text-align:right;}
+  .doctotals { display:flex; justify-content:flex-end; margin-top:12px; }
+  .doctotals .box { width:224px; font-size:14px; }
+  .doctotals .line { display:flex; justify-content:space-between; padding:4px 0; }
+  .doctotals .grand { border-top:2px solid #1e293b; font-weight:700; font-size:16px; padding:6px 0; }
+  .docpay { margin-top:20px; border:1px solid #cbd5e1; border-radius:8px; padding:12px; font-size:14px; }
+  .docmemo { margin-top:16px; font-size:12px; color:#64748b; }
+
+  .no-print {}
+  @media print {
+    body { background:#fff; }
+    .no-print { display:none !important; }
+    .docoverlay { position:static; background:none; padding:0; overflow:visible; }
+    .docmodal { max-width:none; margin:0; border-radius:0; box-shadow:none; padding:0; }
+    .sheetpaper { border:none; padding:0; }
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+// ====== データ ======
+const KEY = "car-kanri-data-v1";
+const CATS = [
+  { key:"部品", emoji:"🔩", cls:"sky" },
+  { key:"修理", emoji:"🔧", cls:"amber" },
+  { key:"検査", emoji:"📋", cls:"emerald" },
+  { key:"輸送費", emoji:"🚚", cls:"violet" },
+];
+const catOf = k => CATS.find(c=>c.key===k) || CATS[0];
+const yen = n => "¥" + Number(n||0).toLocaleString("ja-JP");
+const kmf = n => Number(n||0).toLocaleString("ja-JP") + " km";
+const esc = s => String(s==null?"":s).replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[m]));
+function todayStr(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+const slash = s => (s||"").split("-").join("/");
+const mmdd = s => (s||"").slice(5).replace("-","/");
+
+// ▼▼▼ ここだけ自分のFirebaseアドレスに変えられます（今はシフトアプリと同じ保管庫を使用）▼▼▼
+const FIREBASE_URL = "https://shift-app-fa13d-default-rtdb.firebaseio.com";
+const CLOUD_PATH = "car-kanri"; // 車専用の引き出し（シフトのデータとは別）
+// ▲▲▲ ここまで ▲▲▲
+const ENDPOINT = FIREBASE_URL + "/" + CLOUD_PATH + ".json";
+
+let db = { expenses:[], estimates:[], vehicles:[] };
+
+// 起動時：まずクラウドから読む（つながらない時は前回のキャッシュを表示）
+async function loadFromCloud(){
+  try {
+    const res = await fetch(ENDPOINT);
+    if(res.ok){
+      const data = await res.json();
+      if(data && typeof data==="object"){
+        db = { expenses:data.expenses||[], estimates:data.estimates||[], vehicles:data.vehicles||[] };
+      }
+    }
+    try { localStorage.setItem(KEY, JSON.stringify(db)); } catch(_){}
+  } catch(e){
+    try { const raw=localStorage.getItem(KEY); if(raw) db=JSON.parse(raw); } catch(_){}
+  }
+}
+
+// 保存：クラウドに書き込み（同時に手元にもキャッシュ）
+async function save(){
+  try { localStorage.setItem(KEY, JSON.stringify(db)); } catch(_){}
+  try {
+    await fetch(ENDPOINT, { method:"PUT", headers:{"Content-Type":"application/json"}, body: JSON.stringify(db) });
+  } catch(e){ /* オフラインでも手元には残る */ }
+}
+
+// ====== 画面の状態 ======
+const now = new Date();
+let ui = { tab:"expense", y:now.getFullYear(), m:now.getMonth()+1 };
+
+function moveMonth(d){ let y=ui.y, m=ui.m+d; if(m<1){m=12;y--;} if(m>12){m=1;y++;} ui.y=y; ui.m=m; render(); }
+function monthKey(){ return ui.y+"-"+String(ui.m).padStart(2,"0"); }
+function curList(){
+  const src = ui.tab==="estimate" ? db.estimates : db.expenses;
+  return src.filter(e=>e.date.startsWith(monthKey())).sort((a,b)=>a.date.localeCompare(b.date));
+}
+
+// ====== メイン描画 ======
+function render(){
+  const isEst = ui.tab==="estimate";
+  const isPur = ui.tab==="purchase";
+  const label = ui.y+"年"+ui.m+"月";
+  let html = '<div class="wrap">';
+
+  html += '<div class="head"><div class="logo">🚗</div><h1>車の管理</h1></div>';
+
+  html += '<div class="card tabs">'
+    + tabBtn("expense","経費") + tabBtn("estimate","見積") + tabBtn("purchase","仕入れ")
+    + '</div>';
+
+  if(!isPur){
+    html += '<div class="card monthnav">'
+      + '<button onclick="moveMonth(-1)">‹</button>'
+      + '<div class="monthlabel">'+label+'</div>'
+      + '<button onclick="moveMonth(1)">›</button></div>';
+  }
+
+  if(isPur){
+    const vs = [...db.vehicles].sort((a,b)=>b.date.localeCompare(a.date));
+    const vt = vs.reduce((s,v)=>s+Number(v.cost||0),0);
+    html += '<div class="total dark"><div class="l">仕入れ '+vs.length+'台 ・ 仕入れ総額</div><div class="n">'+yen(vt)+'</div></div>';
+    html += vehicleListHtml(vs);
+  } else {
+    const list = curList();
+    const total = list.reduce((s,e)=>s+Number(e.amount),0);
+    html += '<div class="total '+(isEst?"indigo":"dark")+'"><div class="l">'+label+'の'+(isEst?"支払い予定":"合計")+'</div><div class="n">'+yen(total)+'</div></div>';
+    if(isEst){
+      html += '<button class="docbtn" onclick="openDoc()">📄 この見積で見積書・請求書を作る</button>';
+    }
+    html += '<div class="cats">';
+    CATS.forEach(c=>{
+      const sum = list.filter(e=>e.category===c.key).reduce((s,e)=>s+Number(e.amount),0);
+      html += '<div class="catcard '+c.cls+'"><div class="l">'+c.emoji+' '+c.key+'</div><div class="n">'+yen(sum)+'</div></div>';
+    });
+    html += '</div>';
+    html += '<div class="listhead">'+(isEst?"見積":"記録")+'（'+list.length+'件）</div>';
+    html += itemListHtml(list, isEst);
+  }
+
+  html += '</div>'; // wrap
+
+  // 下の追加ボタン
+  html += '<div class="fab"><div class="fabinner">';
+  if(isPur){
+    html += '<button class="addbtn dark" onclick="openVForm()">＋ 仕入れを追加</button>';
+  } else {
+    html += '<button class="addbtn '+(isEst?"indigo":"dark")+'" onclick="openForm()">＋ '+(isEst?"見積を追加":"経費を追加")+'</button>';
+  }
+  html += '</div></div>';
+
+  document.getElementById("app").innerHTML = html;
+}
+
+function tabBtn(key,text){ return '<button class="tab'+(ui.tab===key?" on":"")+'" onclick="setTab(\''+key+'\')">'+text+'</button>'; }
+function setTab(t){ ui.tab=t; render(); }
+
+function itemListHtml(list, isEst){
+  if(list.length===0){
+    return '<div class="empty">まだ'+(isEst?"見積":"記録")+'がありません。<br>下の「＋ '+(isEst?"見積を追加":"経費を追加")+'」から入れてみてください。</div>';
+  }
+  let h="";
+  list.forEach(e=>{
+    const c = catOf(e.category);
+    h += '<div class="row"><div class="rowtop">'
+      + '<div class="dot '+c.cls+'">'+c.emoji+'</div>'
+      + '<div class="rowmid"><div><span class="chip '+c.cls+'">'+esc(e.category)+'</span>'
+      + '<span class="date">'+(isEst?"予定 ":"")+mmdd(e.date)+'</span></div>'
+      + (e.memo? '<div class="memo">'+esc(e.memo)+'</div>' : '')
+      + '</div>'
+      + '<div class="amt">'+yen(e.amount)+'</div>'
+      + '<button class="del" onclick="removeItem('+e.id+')">🗑</button>'
+      + '</div>';
+    if(isEst){
+      h += '<button class="paybtn" onclick="payEstimate('+e.id+')">✓ 支払った → 経費に移す</button>';
+    }
+    h += '</div>';
+  });
+  return h;
+}
+
+function vehicleListHtml(vs){
+  let h = '<div class="listhead">仕入れた車（'+vs.length+'台）</div>';
+  if(vs.length===0){
+    return h + '<div class="empty">まだ登録がありません。<br>下の「＋ 仕入れを追加」から入れてみてください。</div>';
+  }
+  vs.forEach(v=>{
+    h += '<div class="vcard"><div class="vtop">'
+      + '<div><div class="vmodel">'+esc(v.model)+'</div>'
+      + (v.grade? '<div class="vgrade">'+esc(v.grade)+'</div>':'')+'</div>'
+      + '<button class="del" onclick="removeVehicle('+v.id+')">🗑</button></div>'
+      + '<div class="vmeta"><span>📏 '+kmf(v.mileage)+'</span><span>仕入 '+mmdd(v.date)+'</span></div>'
+      + '<div class="vcost"><span style="font-size:12px;color:#94a3b8;">仕入れ金額 </span><span style="font-size:18px;font-weight:700;">'+yen(v.cost)+'</span></div>'
+      + (v.memo? '<div class="memo" style="white-space:normal;margin-top:4px;">'+esc(v.memo)+'</div>':'')
+      + '</div>';
+  });
+  return h;
+}
+
+// ====== 追加・削除 ======
+function removeItem(id){
+  if(ui.tab==="estimate") db.estimates = db.estimates.filter(e=>e.id!==id);
+  else db.expenses = db.expenses.filter(e=>e.id!==id);
+  save(); render();
+}
+function removeVehicle(id){ db.vehicles = db.vehicles.filter(v=>v.id!==id); save(); render(); }
+function payEstimate(id){
+  const est = db.estimates.find(e=>e.id===id); if(!est) return;
+  db.expenses.push({ id:Date.now(), date:todayStr(), category:est.category, amount:est.amount, memo:est.memo });
+  db.estimates = db.estimates.filter(e=>e.id!==id);
+  save(); render();
+}
+
+// ====== 経費・見積フォーム ======
+let formCat = "部品";
+function openForm(){
+  const isEst = ui.tab==="estimate";
+  formCat = "部品";
+  const html = '<div class="overlay" onclick="closeModal(event)"><div class="sheet" onclick="event.stopPropagation()">'
+    + '<div class="sheethead"><h2>'+(isEst?"見積を追加":"経費を追加")+'</h2><button class="xbtn" onclick="closeModal()">✕</button></div>'
+    + '<label>'+(isEst?"予定日":"日付")+'</label><input type="date" id="f_date" value="'+todayStr()+'">'
+    + '<label>費目</label><div class="catgrid" id="f_cats">'+catPickHtml()+'</div>'
+    + '<label>金額</label><div class="yeninput"><span>¥</span><input type="number" inputmode="numeric" id="f_amount" placeholder="0"></div>'
+    + '<label>メモ（任意）</label><input type="text" id="f_memo" placeholder="例：タイヤ交換、オイル など">'
+    + '<button class="submit '+(isEst?"indigo":"dark")+'" onclick="submitItem()">'+(isEst?"この見積を記録する":"この内容で記録する")+'</button>'
+    + '</div></div>';
+  openModal(html);
+}
+function catPickHtml(){
+  return CATS.map(c=>'<button class="catpick '+c.cls+(formCat===c.key?" on":"")+'" onclick="pickCat(\''+c.key+'\')">'+c.emoji+' '+c.key+'</button>').join("");
+}
+function pickCat(k){ formCat=k; document.getElementById("f_cats").innerHTML = catPickHtml(); }
+function submitItem(){
+  const amount = Number(document.getElementById("f_amount").value);
+  if(!amount || amount<=0){ alert("金額を入れてください。"); return; }
+  const item = { id:Date.now(), date:document.getElementById("f_date").value, category:formCat, amount:amount, memo:document.getElementById("f_memo").value.trim() };
+  if(ui.tab==="estimate") db.estimates.push(item); else db.expenses.push(item);
+  save(); closeModal(); render();
+}
+
+// ====== 仕入れフォーム ======
+function openVForm(){
+  const html = '<div class="overlay" onclick="closeModal(event)"><div class="sheet" onclick="event.stopPropagation()">'
+    + '<div class="sheethead"><h2>仕入れを追加</h2><button class="xbtn" onclick="closeModal()">✕</button></div>'
+    + '<label>仕入れ日</label><input type="date" id="v_date" value="'+todayStr()+'">'
+    + '<label>車種</label><input type="text" id="v_model" placeholder="例：ハイエース">'
+    + '<label>グレード</label><input type="text" id="v_grade" placeholder="例：スーパーGL">'
+    + '<label>走行距離（km）</label><input type="number" inputmode="numeric" id="v_mileage" placeholder="例：82000">'
+    + '<label>仕入れ金額</label><div class="yeninput"><span>¥</span><input type="number" inputmode="numeric" id="v_cost" placeholder="0"></div>'
+    + '<label>メモ（任意）</label><input type="text" id="v_memo" placeholder="例：色シルバー、修復歴なし など">'
+    + '<button class="submit dark" onclick="submitVehicle()">この仕入れを記録する</button>'
+    + '</div></div>';
+  openModal(html);
+}
+function submitVehicle(){
+  const model = document.getElementById("v_model").value.trim();
+  if(!model){ alert("車種を入れてください。"); return; }
+  db.vehicles.push({
+    id:Date.now(), date:document.getElementById("v_date").value, model:model,
+    grade:document.getElementById("v_grade").value.trim(),
+    mileage:Number(document.getElementById("v_mileage").value)||0,
+    cost:Number(document.getElementById("v_cost").value)||0,
+    memo:document.getElementById("v_memo").value.trim()
+  });
+  save(); closeModal(); render();
+}
+
+// ====== モーダル共通 ======
+function openModal(html){ const d=document.createElement("div"); d.id="modal"; d.innerHTML=html; document.body.appendChild(d); }
+function closeModal(ev){ if(ev && ev.target!==ev.currentTarget) return; const m=document.getElementById("modal"); if(m) m.remove(); }
+
+// ====== 見積書・請求書 ======
+let doc = null;
+function openDoc(){
+  const list = curList();
+  doc = {
+    type:"quote",
+    issuer:{ name:"", address:"", tel:"", bank:"" },
+    to:"", note:"", due:"",
+    items: list.length ? list.map(e=>({ category:e.category, desc:e.memo||e.category, qty:1, price:Number(e.amount) }))
+                       : [{ category:"部品", desc:"", qty:1, price:0 }]
+  };
+  renderDoc();
+}
+function closeDoc(){ const m=document.getElementById("docmodal"); if(m) m.remove(); doc=null; }
+function setDocType(t){ doc.type=t; renderDoc(); }
+function docField(k,v){ doc[k]=v; }
+function docIssuer(k,v){ doc.issuer[k]=v; }
+function docItem(i,k,v){ doc.items[i][k]= (k==="qty"||k==="price")? v : v; renderDocPreviewOnly(); }
+function addDocRow(){ doc.items.push({ category:"部品", desc:"", qty:1, price:0 }); renderDoc(); }
+function delDocRow(i){ doc.items.splice(i,1); if(doc.items.length===0) doc.items.push({category:"部品",desc:"",qty:1,price:0}); renderDoc(); }
+
+function docCalc(){
+  const sub = doc.items.reduce((s,it)=>s+Number(it.qty||0)*Number(it.price||0),0);
+  const tax = Math.floor(sub*0.1);
+  return { sub, tax, grand: sub+tax };
+}
+
+function renderDoc(){
+  const isQ = doc.type==="quote";
+  const { grand } = docCalc();
+  const title = isQ ? "御 見 積 書" : "御 請 求 書";
+  const lead = isQ ? "下記の通り御見積り申し上げます。" : "下記の通り御請求申し上げます。";
+  const no = (isQ?"Q-":"I-") + todayStr().split("-").join("");
+
+  let controls = '<div class="no-print">'
+    + '<div class="sheethead"><h2>書類を作る</h2><button class="xbtn" onclick="closeDoc()">✕</button></div>'
+    + '<div class="doctypesw"><button class="'+(isQ?"on":"")+'" onclick="setDocType(\'quote\')">見積書</button>'
+    + '<button class="'+(!isQ?"on":"")+'" onclick="setDocType(\'invoice\')">請求書</button></div>'
+    + '<label>宛先（相手の名前）</label><input type="text" value="'+esc(doc.to)+'" placeholder="例：山田自動車 様" oninput="docField(\'to\',this.value); syncPrev()">'
+    + '<div class="issuerbox"><div class="t">発行元（あなたの情報）</div>'
+    + '<input type="text" value="'+esc(doc.issuer.name)+'" placeholder="お店・会社の名前" oninput="docIssuer(\'name\',this.value); syncPrev()">'
+    + '<input type="text" value="'+esc(doc.issuer.address)+'" placeholder="住所" oninput="docIssuer(\'address\',this.value); syncPrev()">'
+    + '<input type="text" value="'+esc(doc.issuer.tel)+'" placeholder="電話番号" oninput="docIssuer(\'tel\',this.value); syncPrev()"></div>'
+    + '<label>品目</label>' + itemsEditorHtml()
+    + '<button class="addrow" onclick="addDocRow()">＋ 品目を足す</button>';
+
+  if(!isQ){
+    controls += '<label>お支払期限</label><input type="date" value="'+esc(doc.due)+'" oninput="docField(\'due\',this.value); syncPrev()">'
+      + '<label>お振込先</label><input type="text" value="'+esc(doc.issuer.bank)+'" placeholder="例：〇〇銀行 △△支店 普通 1234567" oninput="docIssuer(\'bank\',this.value); syncPrev()">';
+  }
+  controls += '<label>備考（任意）</label><input type="text" value="'+esc(doc.note)+'" placeholder="例：有効期限は発行日より30日" oninput="docField(\'note\',this.value); syncPrev()">'
+    + '<div class="prevnote">↓ 下が実際の書類プレビューです。確認して「PDFで保存」を押してください</div></div>';
+
+  const paper = '<div id="docpaper">'+paperHtml()+'</div>';
+
+  const btns = '<div class="no-print docbtns"><button class="close" onclick="closeDoc()">閉じる</button>'
+    + '<button class="print" onclick="window.print()">🖨 PDFで保存 / 印刷</button></div>';
+
+  let m = document.getElementById("docmodal");
+  if(!m){ m=document.createElement("div"); m.id="docmodal"; document.body.appendChild(m); }
+  m.innerHTML = '<div class="docoverlay"><div class="docmodal">'+controls+paper+btns+'</div></div>';
+}
+
+function itemsEditorHtml(){
+  return doc.items.map((it,i)=>{
+    const opts = CATS.map(c=>'<option value="'+c.key+'"'+(it.category===c.key?" selected":"")+'>'+c.key+'</option>').join("");
+    return '<div class="itemrow">'
+      + '<div class="r1"><select onchange="docItem('+i+',\'category\',this.value)">'+opts+'</select>'
+      + '<input class="desc" type="text" value="'+esc(it.desc)+'" placeholder="内容（例：タイヤ交換一式）" oninput="docItem('+i+',\'desc\',this.value)">'
+      + '<button class="del" onclick="delDocRow('+i+')">🗑</button></div>'
+      + '<div class="r2"><span class="lbl">数量</span>'
+      + '<input class="qty" type="number" inputmode="numeric" value="'+esc(it.qty)+'" oninput="docItem('+i+',\'qty\',this.value)">'
+      + '<span class="lbl">単価</span><div class="prcwrap"><span>¥</span>'
+      + '<input class="prc" type="number" inputmode="numeric" value="'+esc(it.price)+'" oninput="docItem('+i+',\'price\',this.value)"></div></div>'
+      + '</div>';
+  }).join("");
+}
+
+function paperHtml(){
+  const isQ = doc.type==="quote";
+  const { sub, tax, grand } = docCalc();
+  const title = isQ ? "御 見 積 書" : "御 請 求 書";
+  const lead = isQ ? "下記の通り御見積り申し上げます。" : "下記の通り御請求申し上げます。";
+  const no = (isQ?"Q-":"I-") + todayStr().split("-").join("");
+  let rows = doc.items.map(it=>'<tr><td>'+esc(it.category)+'</td><td>'+esc(it.desc)+'</td>'
+    + '<td class="ta-r">'+esc(it.qty)+'</td><td class="ta-r">'+yen(it.price)+'</td>'
+    + '<td class="ta-r">'+yen(Number(it.qty||0)*Number(it.price||0))+'</td></tr>').join("");
+  let pay = "";
+  if(!isQ && (doc.due || doc.issuer.bank)){
+    pay = '<div class="docpay">'
+      + (doc.due? '<div>お支払期限：'+slash(doc.due)+'</div>':'')
+      + (doc.issuer.bank? '<div style="margin-top:4px;">お振込先：'+esc(doc.issuer.bank)+'</div>':'')
+      + '</div>';
+  }
+  return '<div class="sheetpaper">'
+    + '<div class="doctitle">'+title+'</div>'
+    + '<div class="docheader"><div>'
+      + '<div class="docto">'+(esc(doc.to)||"（宛先）")+' <span style="font-size:14px;font-weight:400;">御中</span></div>'
+      + '<div class="doclead">'+lead+'</div>'
+      + '<div class="docgrand"><div class="l">合計金額（税込）</div><div class="n">'+yen(grand)+'</div></div>'
+    + '</div><div class="docissuer"><div>No. '+no+'</div><div>発行日 '+slash(todayStr())+'</div>'
+      + '<div class="name">'+(esc(doc.issuer.name)||"（発行元の名前）")+'</div>'
+      + (doc.issuer.address? '<div>'+esc(doc.issuer.address)+'</div>':'')
+      + (doc.issuer.tel? '<div>TEL '+esc(doc.issuer.tel)+'</div>':'')
+    + '</div></div>'
+    + '<table class="doctable"><thead><tr>'
+      + '<th class="ta-l">費目</th><th class="ta-l">内容</th><th class="ta-r">数量</th><th class="ta-r">単価</th><th class="ta-r">金額</th>'
+    + '</tr></thead><tbody>'+rows+'</tbody></table>'
+    + '<div class="doctotals"><div class="box">'
+      + '<div class="line"><span>小計</span><span>'+yen(sub)+'</span></div>'
+      + '<div class="line"><span>消費税（10%）</span><span>'+yen(tax)+'</span></div>'
+      + '<div class="line grand"><span>合計</span><span>'+yen(grand)+'</span></div>'
+    + '</div></div>'
+    + pay
+    + (doc.note? '<div class="docmemo">備考：'+esc(doc.note)+'</div>':'')
+    + '</div>';
+}
+// 品目の数字入力中はプレビューだけ更新（フォーカスを保つため全体は作り直さない）
+function renderDocPreviewOnly(){ const p=document.getElementById("docpaper"); if(p) p.innerHTML = paperHtml(); }
+function syncPrev(){ renderDocPreviewOnly(); }
+
+document.getElementById("app").innerHTML = '<div style="padding:60px 20px;text-align:center;color:#94a3b8;">読み込み中…</div>';
+loadFromCloud().then(render);
+</script>
+</body>
+</html>
