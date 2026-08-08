@@ -134,6 +134,8 @@
     .sheetpaper { border:none; padding:0; }
   }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 <div id="app"></div>
@@ -427,7 +429,7 @@ function renderDoc(){
   const paper = '<div id="docpaper">'+paperHtml()+'</div>';
 
   const btns = '<div class="no-print docbtns"><button class="close" onclick="closeDoc()">閉じる</button>'
-    + '<button class="print" onclick="window.print()">🖨 PDFで保存 / 印刷</button></div>';
+    + '<button class="print" onclick="makePdf()">📄 PDFにする（ダウンロード）</button></div>';
 
   let m = document.getElementById("docmodal");
   if(!m){ m=document.createElement("div"); m.id="docmodal"; document.body.appendChild(m); }
@@ -487,6 +489,36 @@ function paperHtml(){
     + pay
     + (doc.note? '<div class="docmemo">備考：'+esc(doc.note)+'</div>':'')
     + '</div>';
+}
+function makePdf(){
+  const el = document.querySelector("#docpaper .sheetpaper");
+  if(!el) return;
+  if(!window.html2canvas || !window.jspdf){
+    alert("PDFの準備ができませんでした。ネットにつないだ状態で、もう一度お試しください。");
+    return;
+  }
+  const isQ = doc.type==="quote";
+  const fname = (isQ?"mitsumori_":"seikyu_") + todayStr().split("-").join("") + ".pdf";
+  html2canvas(el, { scale:2, backgroundColor:"#ffffff" }).then(function(canvas){
+    const img = canvas.toDataURL("image/png");
+    const jsPDF = window.jspdf.jsPDF;
+    const pdf = new jsPDF("p","mm","a4");
+    const pw = 210, ph = 297;
+    const iw = pw;
+    const ih = canvas.height * pw / canvas.width;
+    let heightLeft = ih, position = 0;
+    pdf.addImage(img,"PNG",0,position,iw,ih);
+    heightLeft -= ph;
+    while(heightLeft > 0){
+      position -= ph;
+      pdf.addPage();
+      pdf.addImage(img,"PNG",0,position,iw,ih);
+      heightLeft -= ph;
+    }
+    pdf.save(fname);
+  }).catch(function(e){
+    alert("PDF作成でエラーが出ました。もう一度お試しください。");
+  });
 }
 // 品目の数字入力中はプレビューだけ更新（フォーカスを保つため全体は作り直さない）
 function renderDocPreviewOnly(){ const p=document.getElementById("docpaper"); if(p) p.innerHTML = paperHtml(); }
