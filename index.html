@@ -128,6 +128,14 @@
   .langsw { display:flex; gap:2px; background:#e2e8f0; border-radius:999px; padding:2px; }
   .langsw button { border:none; background:none; border-radius:999px; padding:4px 10px; font-size:12px; font-weight:600; color:#64748b; cursor:pointer; font-family:inherit; }
   .langsw button.on { background:#fff; color:#1e293b; }
+  .logoutbtn { border:1px solid #cbd5e1; background:#fff; border-radius:999px; padding:4px 10px; font-size:12px; font-weight:600; color:#64748b; cursor:pointer; font-family:inherit; }
+  .loginwrap { max-width:400px; margin:50px auto; padding:0 20px; }
+  .logincard { background:#fff; border-radius:20px; box-shadow:0 4px 16px rgba(0,0,0,.08); padding:28px 24px; }
+  .loginlogo { width:56px; height:56px; border-radius:16px; background:#1e293b; color:#fff; display:flex; align-items:center; justify-content:center; font-size:30px; margin:0 auto 16px; }
+  .logintitle { text-align:center; font-size:20px; font-weight:700; margin-bottom:20px; }
+  .loginerr { background:#fef2f2; color:#dc2626; border-radius:10px; padding:10px; font-size:14px; text-align:center; margin-bottom:14px; }
+  .adminwrap { max-width:520px; margin:0 auto; padding:20px 16px 60px; }
+  .usercard { display:flex; align-items:center; gap:10px; background:#fff; border-radius:14px; box-shadow:0 1px 3px rgba(0,0,0,.06); padding:12px 14px; margin-bottom:8px; }
   .no-print {}
   @media print {
     body { background:#fff; }
@@ -205,7 +213,15 @@ const L = {
     loading:"読み込み中…",
     alAmount:"金額を入れてください。", alModel:"車種を入れてください。",
     alPdfNot:"PDFの準備ができませんでした。ネットにつないだ状態で、もう一度お試しください。",
-    alPdfErr:"PDF作成でエラーが出ました。もう一度お試しください。"
+    alPdfErr:"PDF作成でエラーが出ました。もう一度お試しください。",
+    login:"ログイン", logout:"ログアウト", loginId:"ID", loginPass:"合言葉",
+    loginErr:"IDまたは合言葉が違います", adminPage:"管理者ページ", addUser:"お客さんを追加",
+    userName:"名前", userPass:"合言葉", addBtn:"追加", customers:"お客さん一覧",
+    noCustomers:"まだお客さんがいません", changeAdminPass:"管理者の合言葉を変更",
+    newPass:"新しい合言葉", changeBtn:"変更",
+    phCustName:"例：アハメドさん", phCustId:"例：ahmed", phCustPass:"例：1234",
+    alUserReq:"IDと合言葉を入れてください。", alUserDup:"そのIDはすでに使われています。",
+    confDel:"このお客さんを削除しますか？（データも消えます）", doneChange:"変更しました。"
   },
   en: {
     appTitle:"Car Manager", tabExpense:"Expenses", tabEstimate:"Estimates", tabPurchase:"Purchases",
@@ -241,34 +257,140 @@ const L = {
     loading:"Loading…",
     alAmount:"Please enter an amount.", alModel:"Please enter a model.",
     alPdfNot:"PDF is not ready. Please connect to the internet and try again.",
-    alPdfErr:"PDF creation failed. Please try again."
+    alPdfErr:"PDF creation failed. Please try again.",
+    login:"Log in", logout:"Log out", loginId:"ID", loginPass:"Password",
+    loginErr:"Wrong ID or password", adminPage:"Admin", addUser:"Add customer",
+    userName:"Name", userPass:"Password", addBtn:"Add", customers:"Customers",
+    noCustomers:"No customers yet", changeAdminPass:"Change admin password",
+    newPass:"New password", changeBtn:"Change",
+    phCustName:"e.g. Ahmed", phCustId:"e.g. ahmed", phCustPass:"e.g. 1234",
+    alUserReq:"Please enter ID and password.", alUserDup:"That ID is already used.",
+    confDel:"Delete this customer? (data will also be removed)", doneChange:"Done."
   }
 };
 let lang = "ja";
 try { const lg = localStorage.getItem("car-lang"); if(lg==="en"||lg==="ja") lang = lg; } catch(_){}
 function t(k){ return (L[lang] && L[lang][k]!=null) ? L[lang][k] : (L.ja[k]||k); }
-function setLang(l){ lang=l; try{ localStorage.setItem("car-lang",l);}catch(_){} render(); }
+function setLang(l){ lang=l; try{ localStorage.setItem("car-lang",l);}catch(_){} if(currentUser===null){ showLogin(); } else if(isAdmin){ showAdmin(); } else { render(); } }
 function monthLabel(y,m){ return lang==="en" ? (MONTHS_EN[m-1]+" "+y) : (y+"年"+m+"月"); }
 
 // ====== データ ======
 let db = { expenses:[], estimates:[], vehicles:[] };
-async function loadFromCloud(){
+let currentUser = null, isAdmin = false, accounts = {};
+function dataPath(uid){ return FIREBASE_URL + "/car-kanri/data/" + encodeURIComponent(uid) + ".json"; }
+
+async function fetchAccounts(){
+  try { const r = await fetch(FIREBASE_URL+"/car-kanri/accounts.json"); if(r.ok){ const d=await r.json(); accounts = d||{}; } } catch(e){ accounts = accounts||{}; }
+  if(!accounts || Object.keys(accounts).length===0){
+    accounts = { admin: { pass:"admin0000", name:"管理者", admin:true } };
+    await saveAccounts();
+  }
+  return accounts;
+}
+async function saveAccounts(){
+  try { await fetch(FIREBASE_URL+"/car-kanri/accounts.json", { method:"PUT", headers:{"Content-Type":"application/json"}, body: JSON.stringify(accounts) }); } catch(e){}
+}
+async function loadUserData(){
+  db = { expenses:[], estimates:[], vehicles:[] };
   try {
-    const res = await fetch(ENDPOINT);
-    if(res.ok){
-      const data = await res.json();
-      if(data && typeof data==="object"){
-        db = { expenses:data.expenses||[], estimates:data.estimates||[], vehicles:data.vehicles||[] };
-      }
-    }
-    try { localStorage.setItem(KEY, JSON.stringify(db)); } catch(_){}
+    const r = await fetch(dataPath(currentUser));
+    if(r.ok){ const d = await r.json(); if(d && typeof d==="object"){ db = { expenses:d.expenses||[], estimates:d.estimates||[], vehicles:d.vehicles||[] }; } }
+    try { localStorage.setItem(KEY+"_"+currentUser, JSON.stringify(db)); } catch(_){}
   } catch(e){
-    try { const raw=localStorage.getItem(KEY); if(raw) db=JSON.parse(raw); } catch(_){}
+    try { const raw=localStorage.getItem(KEY+"_"+currentUser); if(raw) db=JSON.parse(raw); } catch(_){}
   }
 }
+function logout(){ currentUser=null; isAdmin=false; showLogin(); }
+
+function showLogin(msg){
+  document.getElementById("app").innerHTML =
+    '<div class="loginwrap"><div class="logincard">'
+    + '<div class="loginlogo">🚗</div>'
+    + '<div class="logintitle">'+t("appTitle")+'</div>'
+    + (msg? '<div class="loginerr">'+esc(msg)+'</div>' : '')
+    + '<label>'+t("loginId")+'</label><input type="text" id="login_id" autocomplete="username">'
+    + '<label>'+t("loginPass")+'</label><input type="password" id="login_pass" autocomplete="current-password">'
+    + '<button class="submit dark" onclick="doLogin()">'+t("login")+'</button>'
+    + '<div style="text-align:center;margin-top:14px;"><span class="langsw" style="display:inline-flex;">'
+    + '<button class="'+(lang==="ja"?"on":"")+'" onclick="setLang(\'ja\')">日本語</button>'
+    + '<button class="'+(lang==="en"?"on":"")+'" onclick="setLang(\'en\')">EN</button>'
+    + '</span></div>'
+    + '</div></div>';
+}
+async function doLogin(){
+  const id = (document.getElementById("login_id").value||"").trim();
+  const pw = document.getElementById("login_pass").value||"";
+  document.getElementById("app").innerHTML = '<div style="padding:60px 20px;text-align:center;color:#94a3b8;">'+t("loading")+'</div>';
+  await fetchAccounts();
+  const acc = accounts[id];
+  if(!acc || acc.pass !== pw){ showLogin(t("loginErr")); return; }
+  currentUser = id; isAdmin = !!acc.admin;
+  if(isAdmin){ showAdmin(); return; }
+  await loadUserData();
+  render();
+}
+
+function showAdmin(){
+  const users = Object.keys(accounts).filter(k=>!accounts[k].admin);
+  const list = users.length ? users.map(uid=>{
+    const a = accounts[uid];
+    return '<div class="usercard"><div style="flex:1;min-width:0;">'
+      + '<div style="font-weight:600;">'+esc(a.name||uid)+'</div>'
+      + '<div style="font-size:13px;color:#64748b;">ID: '+esc(uid)+' / '+t("loginPass")+': '+esc(a.pass)+'</div>'
+      + '</div><button class="del" onclick="delUser(\''+esc(uid)+'\')">🗑</button></div>';
+  }).join("") : '<div class="empty">'+t("noCustomers")+'</div>';
+  document.getElementById("app").innerHTML =
+    '<div class="adminwrap">'
+    + '<div class="head"><div class="logo">🚗</div><h1>'+t("adminPage")+'</h1>'
+    + '<div style="margin-left:auto;display:flex;gap:6px;align-items:center;">'
+    + '<button class="logoutbtn" onclick="logout()">'+t("logout")+'</button>'
+    + '<span class="langsw"><button class="'+(lang==="ja"?"on":"")+'" onclick="setLang(\'ja\')">日本語</button><button class="'+(lang==="en"?"on":"")+'" onclick="setLang(\'en\')">EN</button></span>'
+    + '</div></div>'
+    + '<div class="card" style="padding:16px;margin-bottom:16px;">'
+    + '<div style="font-weight:700;margin-bottom:12px;">'+t("addUser")+'</div>'
+    + '<label>'+t("userName")+'</label><input type="text" id="nu_name" placeholder="'+esc(t("phCustName"))+'">'
+    + '<label>ID</label><input type="text" id="nu_id" placeholder="'+esc(t("phCustId"))+'">'
+    + '<label>'+t("userPass")+'</label><input type="text" id="nu_pass" placeholder="'+esc(t("phCustPass"))+'">'
+    + '<button class="submit dark" onclick="addUser()">'+t("addBtn")+'</button>'
+    + '</div>'
+    + '<div class="listhead">'+t("customers")+'（'+users.length+'）</div>'
+    + list
+    + '<div class="card" style="padding:16px;margin-top:20px;">'
+    + '<div style="font-weight:700;margin-bottom:12px;">'+t("changeAdminPass")+'</div>'
+    + '<input type="text" id="ap_new" placeholder="'+esc(t("newPass"))+'">'
+    + '<button class="submit dark" onclick="changeAdminPass()">'+t("changeBtn")+'</button>'
+    + '</div>'
+    + '</div>';
+}
+async function addUser(){
+  const name=(document.getElementById("nu_name").value||"").trim();
+  const id=(document.getElementById("nu_id").value||"").trim();
+  const pass=(document.getElementById("nu_pass").value||"").trim();
+  if(!id||!pass){ alert(t("alUserReq")); return; }
+  if(accounts[id]){ alert(t("alUserDup")); return; }
+  accounts[id] = { pass:pass, name:name||id };
+  await saveAccounts();
+  showAdmin();
+}
+async function delUser(uid){
+  if(!confirm(t("confDel"))) return;
+  delete accounts[uid];
+  await saveAccounts();
+  try { await fetch(dataPath(uid), { method:"DELETE" }); } catch(e){}
+  showAdmin();
+}
+async function changeAdminPass(){
+  const np=(document.getElementById("ap_new").value||"").trim();
+  if(!np) return;
+  accounts["admin"].pass = np;
+  await saveAccounts();
+  alert(t("doneChange"));
+  showAdmin();
+}
 async function save(){
-  try { localStorage.setItem(KEY, JSON.stringify(db)); } catch(_){}
-  try { await fetch(ENDPOINT, { method:"PUT", headers:{"Content-Type":"application/json"}, body: JSON.stringify(db) }); } catch(e){}
+  if(!currentUser) return;
+  try { localStorage.setItem(KEY+"_"+currentUser, JSON.stringify(db)); } catch(_){}
+  try { await fetch(dataPath(currentUser), { method:"PUT", headers:{"Content-Type":"application/json"}, body: JSON.stringify(db) }); } catch(e){}
 }
 
 // ====== 画面状態 ======
@@ -289,10 +411,12 @@ function render(){
   let html = '<div class="wrap">';
 
   html += '<div class="head"><div class="logo">🚗</div><h1>'+t("appTitle")+'</h1>'
-    + '<div class="langsw" style="margin-left:auto;">'
+    + '<div style="margin-left:auto;display:flex;gap:6px;align-items:center;">'
+    + '<button class="logoutbtn" onclick="logout()">'+t("logout")+'</button>'
+    + '<span class="langsw">'
     + '<button class="'+(lang==="ja"?"on":"")+'" onclick="setLang(\'ja\')">日本語</button>'
     + '<button class="'+(lang==="en"?"on":"")+'" onclick="setLang(\'en\')">EN</button>'
-    + '</div></div>';
+    + '</span></div></div>';
 
   html += '<div class="card tabs">'
     + tabBtn("expense",t("tabExpense")) + tabBtn("estimate",t("tabEstimate")) + tabBtn("purchase",t("tabPurchase"))
@@ -578,8 +702,7 @@ function makePdf(){
 function renderDocPreviewOnly(){ const p=document.getElementById("docpaper"); if(p) p.innerHTML = paperHtml(); }
 function syncPrev(){ renderDocPreviewOnly(); }
 
-document.getElementById("app").innerHTML = '<div style="padding:60px 20px;text-align:center;color:#94a3b8;">'+t("loading")+'</div>';
-loadFromCloud().then(render);
+showLogin();
 </script>
 </body>
 </html>
