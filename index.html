@@ -140,6 +140,8 @@
   .praytime.next { outline:2px solid #4f46e5; }
   .prayname { font-weight:600; }
   .praytm { font-size:20px; font-weight:700; }
+  .gcalbtn { display:block; text-align:center; margin-top:10px; text-decoration:none; background:#eff6ff; color:#1d4ed8; border-radius:12px; padding:9px; font-size:13px; font-weight:600; }
+  .gcalbtn:hover { background:#dbeafe; }
   .no-print {}
   @media print {
     body { background:#fff; }
@@ -229,7 +231,7 @@ const L = {
     confDel:"このお客さんを削除しますか？（データも消えます）", doneChange:"変更しました。",
     tabPrayer:"お祈り", prayerTitle:"お祈りの時間", chooseCity:"都市を選ぶ", useLocation:"現在地を使う",
     locating:"現在地を取得中…", locErr:"現在地を取得できませんでした。", today:"今日", nextPrayer:"次のお祈り",
-    tabSchedule:"予定", addSchedule:"＋ 予定を追加", fSchedTime:"時間", fSchedText:"用件", saveSchedule:"この予定を記録する", titleAddSchedule:"予定を追加", noSchedules:"まだ予定がありません。<br>下の「＋ 予定を追加」から入れてみてください。", phSchedText:"例：車の引き取り、車検 など", alSchedReq:"用件を入れてください。", notifyTitle:"予定のお知らせ",
+    tabSchedule:"予定", addSchedule:"＋ 予定を追加", fSchedTime:"時間", fSchedText:"用件", saveSchedule:"この予定を記録する", titleAddSchedule:"予定を追加", noSchedules:"まだ予定がありません。<br>下の「＋ 予定を追加」から入れてみてください。", phSchedText:"例：車の引き取り、車検 など", alSchedReq:"用件を入れてください。", notifyTitle:"予定のお知らせ", gcal:"📅 Googleカレンダーに追加",
     remain:"あと", notifyBtn:"🔔 お知らせをON", notifyOn:"お知らせはON", locLabel:"場所",
     pFajr:"ファジュル", pSunrise:"日の出", pDhuhr:"ズフル", pAsr:"アスル", pMaghrib:"マグリブ", pIsha:"イシャー"
   },
@@ -278,7 +280,7 @@ const L = {
     confDel:"Delete this customer? (data will also be removed)", doneChange:"Done.",
     tabPrayer:"Prayer", prayerTitle:"Prayer times", chooseCity:"Choose city", useLocation:"Use my location",
     locating:"Getting location…", locErr:"Could not get location.", today:"Today", nextPrayer:"Next prayer",
-    tabSchedule:"Schedule", addSchedule:"+ Add plan", fSchedTime:"Time", fSchedText:"Task", saveSchedule:"Save plan", titleAddSchedule:"Add plan", noSchedules:"No plans yet.<br>Use the + button below to add one.", phSchedText:"e.g. pick up car, inspection", alSchedReq:"Please enter a task.", notifyTitle:"Schedule reminder",
+    tabSchedule:"Schedule", addSchedule:"+ Add plan", fSchedTime:"Time", fSchedText:"Task", saveSchedule:"Save plan", titleAddSchedule:"Add plan", noSchedules:"No plans yet.<br>Use the + button below to add one.", phSchedText:"e.g. pick up car, inspection", alSchedReq:"Please enter a task.", notifyTitle:"Schedule reminder", gcal:"📅 Add to Google Calendar",
     remain:"in", notifyBtn:"🔔 Turn on alerts", notifyOn:"Alerts on", locLabel:"Location",
     pFajr:"Fajr", pSunrise:"Sunrise", pDhuhr:"Dhuhr", pAsr:"Asr", pMaghrib:"Maghrib", pIsha:"Isha"
   },
@@ -327,7 +329,7 @@ const L = {
     confDel:"حذف هذا العميل؟ (سيتم حذف البيانات أيضاً)", doneChange:"تم.",
     tabPrayer:"الصلاة", prayerTitle:"مواقيت الصلاة", chooseCity:"اختر المدينة", useLocation:"استخدام موقعي",
     locating:"جاري تحديد الموقع…", locErr:"تعذر تحديد الموقع.", today:"اليوم", nextPrayer:"الصلاة القادمة",
-    tabSchedule:"المواعيد", addSchedule:"+ إضافة موعد", fSchedTime:"الوقت", fSchedText:"المهمة", saveSchedule:"حفظ الموعد", titleAddSchedule:"إضافة موعد", noSchedules:"لا مواعيد بعد.<br>استخدم زر + بالأسفل للإضافة.", phSchedText:"مثال: استلام سيارة، فحص", alSchedReq:"يرجى إدخال المهمة.", notifyTitle:"تذكير بالموعد",
+    tabSchedule:"المواعيد", addSchedule:"+ إضافة موعد", fSchedTime:"الوقت", fSchedText:"المهمة", saveSchedule:"حفظ الموعد", titleAddSchedule:"إضافة موعد", noSchedules:"لا مواعيد بعد.<br>استخدم زر + بالأسفل للإضافة.", phSchedText:"مثال: استلام سيارة، فحص", alSchedReq:"يرجى إدخال المهمة.", notifyTitle:"تذكير بالموعد", gcal:"📅 أضف إلى تقويم Google",
     remain:"المتبقي", notifyBtn:"🔔 تفعيل التنبيه", notifyOn:"التنبيه مُفعّل", locLabel:"الموقع",
     pFajr:"الفجر", pSunrise:"الشروق", pDhuhr:"الظهر", pAsr:"العصر", pMaghrib:"المغرب", pIsha:"العشاء"
   }
@@ -637,7 +639,9 @@ function scheduleListHtml(list){
       + '<div class="rowmid"><div><span class="chip sky">'+esc(mmdd(s.date))+(s.time?(' '+esc(s.time)):'')+'</span></div>'
       + '<div class="memo" style="white-space:normal;">'+esc(s.text)+'</div></div>'
       + '<button class="del" onclick="removeSchedule('+s.id+')">🗑</button>'
-      + '</div></div>';
+      + '</div>'
+      + '<a class="gcalbtn" href="'+gcalUrl(s)+'" target="_blank" rel="noopener">'+t("gcal")+'</a>'
+      + '</div>';
   });
   return h;
 }
@@ -659,6 +663,24 @@ function submitSchedule(){
   save(); closeModal(); render();
 }
 function removeSchedule(id){ db.schedules = db.schedules.filter(s=>s.id!==id); save(); render(); }
+// 予定を Googleカレンダー登録リンクに変換
+function gcalUrl(s){
+  const d = (s.date||"").split("-").join(""); // YYYYMMDD
+  let dates;
+  if(s.time){
+    const hm = s.time.split(":");
+    const startH = String(hm[0]).padStart(2,"0"), startM = String(hm[1]).padStart(2,"0");
+    // 1時間の予定として登録
+    let eh = (Number(hm[0])+1);
+    let ed = d;
+    if(eh>=24){ eh=eh-24; const dt=new Date(Number(s.date.slice(0,4)), Number(s.date.slice(5,7))-1, Number(s.date.slice(8,10))+1); ed = dt.getFullYear()+String(dt.getMonth()+1).padStart(2,"0")+String(dt.getDate()).padStart(2,"0"); }
+    const endH = String(eh).padStart(2,"0");
+    dates = d+"T"+startH+startM+"00/"+ed+"T"+endH+startM+"00";
+  } else {
+    dates = d+"/"+d; // 終日
+  }
+  return "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" + encodeURIComponent(s.text||"") + "&dates=" + dates;
+}
 
 // ====== お知らせ（予定の時間に通知） ======
 let notifiedIds = {};
