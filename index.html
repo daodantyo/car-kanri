@@ -12,8 +12,8 @@
   .head { display:flex; align-items:center; gap:8px; margin-bottom:16px; }
   .logo { width:40px; height:40px; border-radius:12px; background:#1e293b; color:#fff; display:flex; align-items:center; justify-content:center; font-size:22px; }
   .card { background:#fff; border-radius:16px; box-shadow:0 1px 3px rgba(0,0,0,.06); }
-  .tabs { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; padding:6px; margin-bottom:16px; }
-  .tab { border:none; background:none; border-radius:12px; padding:10px 0; font-size:15px; font-weight:600; color:#64748b; cursor:pointer; font-family:inherit; }
+  .tabs { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; padding:5px; margin-bottom:16px; }
+  .tab { border:none; background:none; border-radius:12px; padding:10px 0; font-size:13px; font-weight:600; color:#64748b; cursor:pointer; font-family:inherit; }
   .tab.on { background:#1e293b; color:#fff; }
   .monthnav { display:flex; align-items:center; justify-content:space-between; padding:8px; margin-bottom:16px; }
   .monthnav button { border:none; background:none; padding:8px; border-radius:12px; color:#64748b; cursor:pointer; font-size:20px; }
@@ -136,6 +136,10 @@
   .loginerr { background:#fef2f2; color:#dc2626; border-radius:10px; padding:10px; font-size:14px; text-align:center; margin-bottom:14px; }
   .adminwrap { max-width:520px; margin:0 auto; padding:20px 16px 60px; }
   .usercard { display:flex; align-items:center; gap:10px; background:#fff; border-radius:14px; box-shadow:0 1px 3px rgba(0,0,0,.06); padding:12px 14px; margin-bottom:8px; }
+  .praytime { display:flex; align-items:center; justify-content:space-between; background:#fff; border-radius:14px; box-shadow:0 1px 3px rgba(0,0,0,.06); padding:14px 16px; margin-bottom:8px; }
+  .praytime.next { outline:2px solid #4f46e5; }
+  .prayname { font-weight:600; }
+  .praytm { font-size:20px; font-weight:700; }
   .no-print {}
   @media print {
     body { background:#fff; }
@@ -162,13 +166,14 @@ const ENDPOINT = FIREBASE_URL + "/" + CLOUD_PATH + ".json";
 
 // ====== 費目 ======
 const CATS = [
-  { key:"部品", ja:"部品", en:"Parts", emoji:"🔩", cls:"sky" },
-  { key:"修理", ja:"修理", en:"Repair", emoji:"🔧", cls:"amber" },
-  { key:"検査", ja:"検査", en:"Inspection", emoji:"📋", cls:"emerald" },
-  { key:"輸送費", ja:"輸送費", en:"Shipping", emoji:"🚚", cls:"violet" },
+  { key:"部品", ja:"部品", en:"Parts", ar:"قطع غيار", emoji:"🔩", cls:"sky" },
+  { key:"修理", ja:"修理", en:"Repair", ar:"إصلاح", emoji:"🔧", cls:"amber" },
+  { key:"検査", ja:"検査", en:"Inspection", ar:"فحص", emoji:"📋", cls:"emerald" },
+  { key:"輸送費", ja:"輸送費", en:"Shipping", ar:"شحن", emoji:"🚚", cls:"violet" },
 ];
 const catOf = k => CATS.find(c=>c.key===k) || CATS[0];
-const catLabel = c => lang==="en" ? c.en : c.ja;
+const catLabel = c => lang==="ar" ? c.ar : (lang==="en" ? c.en : c.ja);
+const catDoc = c => lang==="ja" ? c.ja : c.en;
 const yen = n => "¥" + Number(n||0).toLocaleString("ja-JP");
 const kmf = n => Number(n||0).toLocaleString("ja-JP") + " km";
 const esc = s => String(s==null?"":s).replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[m]));
@@ -221,7 +226,11 @@ const L = {
     newPass:"新しい合言葉", changeBtn:"変更",
     phCustName:"例：アハメドさん", phCustId:"例：ahmed", phCustPass:"例：1234",
     alUserReq:"IDと合言葉を入れてください。", alUserDup:"そのIDはすでに使われています。",
-    confDel:"このお客さんを削除しますか？（データも消えます）", doneChange:"変更しました。"
+    confDel:"このお客さんを削除しますか？（データも消えます）", doneChange:"変更しました。",
+    tabPrayer:"お祈り", prayerTitle:"お祈りの時間", chooseCity:"都市を選ぶ", useLocation:"現在地を使う",
+    locating:"現在地を取得中…", locErr:"現在地を取得できませんでした。", today:"今日", nextPrayer:"次のお祈り",
+    remain:"あと", notifyBtn:"🔔 お知らせをON", notifyOn:"お知らせはON", locLabel:"場所",
+    pFajr:"ファジュル", pSunrise:"日の出", pDhuhr:"ズフル", pAsr:"アスル", pMaghrib:"マグリブ", pIsha:"イシャー"
   },
   en: {
     appTitle:"Car Manager", tabExpense:"Expenses", tabEstimate:"Estimates", tabPurchase:"Purchases",
@@ -265,13 +274,70 @@ const L = {
     newPass:"New password", changeBtn:"Change",
     phCustName:"e.g. Ahmed", phCustId:"e.g. ahmed", phCustPass:"e.g. 1234",
     alUserReq:"Please enter ID and password.", alUserDup:"That ID is already used.",
-    confDel:"Delete this customer? (data will also be removed)", doneChange:"Done."
+    confDel:"Delete this customer? (data will also be removed)", doneChange:"Done.",
+    tabPrayer:"Prayer", prayerTitle:"Prayer times", chooseCity:"Choose city", useLocation:"Use my location",
+    locating:"Getting location…", locErr:"Could not get location.", today:"Today", nextPrayer:"Next prayer",
+    remain:"in", notifyBtn:"🔔 Turn on alerts", notifyOn:"Alerts on", locLabel:"Location",
+    pFajr:"Fajr", pSunrise:"Sunrise", pDhuhr:"Dhuhr", pAsr:"Asr", pMaghrib:"Maghrib", pIsha:"Isha"
+  },
+  ar:{
+    appTitle:"إدارة السيارات", tabExpense:"المصروفات", tabEstimate:"عروض الأسعار", tabPurchase:"المشتريات",
+    total:"الإجمالي", scheduled:"المجدول",
+    makeDoc:"📄 إنشاء عرض سعر / فاتورة",
+    records:"السجلات", estWord:"عروض الأسعار",
+    noRecords:"لا توجد سجلات بعد.<br>استخدم زر + بالأسفل للإضافة.",
+    noEstimates:"لا توجد عروض أسعار بعد.<br>استخدم زر + بالأسفل للإضافة.",
+    noVehicles:"لا توجد سيارات بعد.<br>استخدم زر + بالأسفل للإضافة.",
+    addExpense:"+ إضافة مصروف", addEstimate:"+ إضافة عرض سعر", addPurchase:"+ إضافة سيارة",
+    paid:"✓ تم الدفع ← نقل إلى المصروفات",
+    purchasedCars:"السيارات المشتراة", carsUnit:"سيارة",
+    fDate:"التاريخ", fSched:"التاريخ المجدول", fCategory:"الفئة", fAmount:"المبلغ", fMemo:"ملاحظة (اختياري)",
+    fPurDate:"تاريخ الشراء", fModel:"الطراز", fGrade:"الفئة", fMileage:"المسافة (كم)", fCost:"التكلفة",
+    saveExpense:"حفظ", saveEstimate:"حفظ عرض السعر", savePurchase:"حفظ السيارة",
+    titleAddExpense:"إضافة مصروف", titleAddEstimate:"إضافة عرض سعر", titleAddPurchase:"إضافة سيارة",
+    phMemo:"مثال: تغيير الإطارات", phModel:"مثال: Hiace", phGrade:"مثال: Super GL",
+    phMileage:"مثال: 82000", phMemoCar:"مثال: فضي، بدون حوادث",
+    docTitle:"إنشاء مستند", quote:"عرض سعر", invoice:"فاتورة",
+    to:"إلى (اسم العميل)", phTo:"مثال: Yamada Motors",
+    from:"من (بياناتك)", phFromName:"اسم المتجر / الشركة", phFromAddr:"العنوان", phFromTel:"الهاتف",
+    items:"البنود", addItem:"+ إضافة بند", phDesc:"الوصف", qty:"الكمية", unit:"سعر الوحدة",
+    due:"تاريخ الاستحقاق", bank:"التحويل البنكي إلى", phBank:"مثال: بنك ABC، حساب 1234567",
+    note:"ملاحظة (اختياري)", phNote:"مثال: صالح لمدة 30 يوماً",
+    prevNote:"معاينة المستند بالأسفل. تحقق منها ثم اضغط تنزيل PDF.",
+    close:"إغلاق", pdf:"📄 تنزيل PDF",
+    pTitleQuote:"QUOTATION", pTitleInvoice:"INVOICE",
+    pLeadQuote:"", pLeadInvoice:"",
+    onchu:"", grand:"", noLbl:"No.", issueDate:"",
+    thCat:"", thDesc:"", thQty:"", thUnit:"", thAmt:"",
+    subtotal:"", tax:"", totalRow:"",
+    dueP:"", bankP:"", noteP:"",
+    loading:"جاري التحميل…",
+    alAmount:"يرجى إدخال المبلغ.", alModel:"يرجى إدخال الطراز.",
+    alPdfNot:"PDF غير جاهز. يرجى الاتصال بالإنترنت والمحاولة مرة أخرى.",
+    alPdfErr:"فشل إنشاء PDF. حاول مرة أخرى.",
+    login:"تسجيل الدخول", logout:"خروج", loginId:"المعرف", loginPass:"كلمة السر",
+    loginErr:"المعرف أو كلمة السر غير صحيحة", adminPage:"الإدارة", addUser:"إضافة عميل",
+    userName:"الاسم", userPass:"كلمة السر", addBtn:"إضافة", customers:"العملاء",
+    noCustomers:"لا يوجد عملاء بعد", changeAdminPass:"تغيير كلمة سر المدير",
+    newPass:"كلمة سر جديدة", changeBtn:"تغيير",
+    phCustName:"مثال: أحمد", phCustId:"مثال: ahmed", phCustPass:"مثال: 1234",
+    alUserReq:"يرجى إدخال المعرف وكلمة السر.", alUserDup:"هذا المعرف مستخدم بالفعل.",
+    confDel:"حذف هذا العميل؟ (سيتم حذف البيانات أيضاً)", doneChange:"تم.",
+    tabPrayer:"الصلاة", prayerTitle:"مواقيت الصلاة", chooseCity:"اختر المدينة", useLocation:"استخدام موقعي",
+    locating:"جاري تحديد الموقع…", locErr:"تعذر تحديد الموقع.", today:"اليوم", nextPrayer:"الصلاة القادمة",
+    remain:"المتبقي", notifyBtn:"🔔 تفعيل التنبيه", notifyOn:"التنبيه مُفعّل", locLabel:"الموقع",
+    pFajr:"الفجر", pSunrise:"الشروق", pDhuhr:"الظهر", pAsr:"العصر", pMaghrib:"المغرب", pIsha:"العشاء"
   }
 };
 let lang = "ja";
 try { const lg = localStorage.getItem("car-lang"); if(lg==="en"||lg==="ja") lang = lg; } catch(_){}
 function t(k){ return (L[lang] && L[lang][k]!=null) ? L[lang][k] : (L.ja[k]||k); }
-function setLang(l){ lang=l; try{ localStorage.setItem("car-lang",l);}catch(_){} if(currentUser===null){ showLogin(); } else if(isAdmin){ showAdmin(); } else { render(); } }
+function td(k){ const dl=(lang==="ar")?"en":lang; return (L[dl] && L[dl][k]!=null) ? L[dl][k] : (L.en[k]||L.ja[k]||k); }
+function langSwHtml(){ return '<button class="'+(lang==="ja"?"on":"")+'" onclick="setLang(\'ja\')">日本語</button>'
+  + '<button class="'+(lang==="en"?"on":"")+'" onclick="setLang(\'en\')">EN</button>'
+  + '<button class="'+(lang==="ar"?"on":"")+'" onclick="setLang(\'ar\')">ع</button>'; }
+function setLang(l){ lang=l; try{ localStorage.setItem("car-lang",l);}catch(_){} applyDir(); if(currentUser===null){ showLogin(); } else if(isAdmin){ showAdmin(); } else { render(); } }
+function applyDir(){ document.documentElement.dir = (lang==="ar")?"rtl":"ltr"; document.documentElement.lang = lang; }
 function monthLabel(y,m){ return lang==="en" ? (MONTHS_EN[m-1]+" "+y) : (y+"年"+m+"月"); }
 
 // ====== データ ======
@@ -302,6 +368,89 @@ async function loadUserData(){
 }
 function logout(){ currentUser=null; isAdmin=false; showLogin(); }
 
+// ====== お祈り（礼拝時刻） ======
+const CITIES = [
+  {ja:"東京", en:"Tokyo", lat:35.68, lng:139.65, tz:9},
+  {ja:"大阪", en:"Osaka", lat:34.69, lng:135.50, tz:9},
+  {ja:"名古屋", en:"Nagoya", lat:35.18, lng:136.90, tz:9},
+  {ja:"福岡", en:"Fukuoka", lat:33.59, lng:130.40, tz:9},
+  {ja:"ジャカルタ", en:"Jakarta", lat:-6.21, lng:106.85, tz:7},
+  {ja:"クアラルンプール", en:"Kuala Lumpur", lat:3.14, lng:101.69, tz:8},
+  {ja:"シンガポール", en:"Singapore", lat:1.35, lng:103.82, tz:8},
+  {ja:"ドバイ", en:"Dubai", lat:25.20, lng:55.27, tz:4},
+  {ja:"リヤド", en:"Riyadh", lat:24.71, lng:46.68, tz:3},
+  {ja:"メッカ", en:"Mecca", lat:21.42, lng:39.83, tz:3},
+  {ja:"イスタンブール", en:"Istanbul", lat:41.01, lng:28.98, tz:3},
+  {ja:"カイロ", en:"Cairo", lat:30.04, lng:31.24, tz:2},
+  {ja:"カラチ", en:"Karachi", lat:24.86, lng:67.00, tz:5},
+  {ja:"ダッカ", en:"Dhaka", lat:23.81, lng:90.41, tz:6},
+  {ja:"デリー", en:"Delhi", lat:28.61, lng:77.21, tz:5.5},
+  {ja:"ロンドン", en:"London", lat:51.51, lng:-0.13, tz:0},
+  {ja:"パリ", en:"Paris", lat:48.86, lng:2.35, tz:1},
+  {ja:"ニューヨーク", en:"New York", lat:40.71, lng:-74.01, tz:-5},
+];
+function cityLabel(c){ return lang==="ja"?c.ja:c.en; }
+let prayerLoc = null, prayerTimer = null;
+function savePrayerLoc(){ try{ localStorage.setItem("car-pray-"+currentUser, JSON.stringify(prayerLoc)); }catch(_){} }
+function loadPrayerLoc(){ prayerLoc=null; try{ const r=localStorage.getItem("car-pray-"+currentUser); if(r) prayerLoc=JSON.parse(r); }catch(_){} }
+function pickCity(v){ if(v==="") return; const c=CITIES[Number(v)]; prayerLoc={name:cityLabel(c),lat:c.lat,lng:c.lng,tz:c.tz}; savePrayerLoc(); render(); }
+function useLocation(){
+  if(!navigator.geolocation){ alert(t("locErr")); return; }
+  navigator.geolocation.getCurrentPosition(function(pos){
+    const tz = -new Date().getTimezoneOffset()/60;
+    prayerLoc = { name:t("locLabel"), lat:pos.coords.latitude, lng:pos.coords.longitude, tz:tz };
+    savePrayerLoc(); render();
+  }, function(){ alert(t("locErr")); });
+}
+function pdg(x){return x*Math.PI/180;} function prd(x){return x*180/Math.PI;}
+function dsin(x){return Math.sin(pdg(x));} function dcos(x){return Math.cos(pdg(x));} function dtan(x){return Math.tan(pdg(x));}
+function darcsin(x){return prd(Math.asin(x));} function darccos(x){return prd(Math.acos(x));}
+function darctan2(y,x){return prd(Math.atan2(y,x));} function darccot(x){return prd(Math.atan2(1,x));}
+function fixA(a){a=a-360*Math.floor(a/360); return a<0?a+360:a;}
+function fixH(a){a=a-24*Math.floor(a/24); return a<0?a+24:a;}
+function julianDate(y,m,d){ if(m<=2){y-=1;m+=12;} const A=Math.floor(y/100), B=2-A+Math.floor(A/4); return Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+B-1524.5; }
+function sunPos(jd){ const D=jd-2451545.0; const g=fixA(357.529+0.98560028*D); const q=fixA(280.459+0.98564736*D); const Ls=fixA(q+1.915*dsin(g)+0.020*dsin(2*g)); const e=23.439-0.00000036*D; const RA=darctan2(dcos(e)*dsin(Ls),dcos(Ls))/15; const decl=darcsin(dsin(e)*dsin(Ls)); const EqT=q/15-fixH(RA); return {decl:decl,EqT:EqT}; }
+function timeAngle(angle,lat,decl){ const x=(dsin(angle)-dsin(lat)*dsin(decl))/(dcos(lat)*dcos(decl)); if(x< -1||x>1) return null; return darccos(x)/15; }
+function computePrayer(lat,lng,tz,dateObj){
+  const y=dateObj.getFullYear(), m=dateObj.getMonth()+1, d=dateObj.getDate();
+  const jd=julianDate(y,m,d) - lng/(15*24);
+  const sp=sunPos(jd); const decl=sp.decl, eqt=sp.EqT;
+  const dhuhr=fixH(12 + tz - lng/15 - eqt);
+  function Tm(angle,sign){ const t=timeAngle(angle,lat,decl); if(t===null) return null; return dhuhr + sign*t; }
+  const asrA=-darccot(1+dtan(Math.abs(lat-decl)));
+  const asrT=timeAngle(asrA,lat,decl);
+  return { fajr:Tm(-18,-1), sunrise:Tm(-0.833,-1), dhuhr:dhuhr, asr:(asrT===null?null:dhuhr+asrT), maghrib:Tm(-0.833,1), isha:Tm(-17,1) };
+}
+function hm(h){ if(h===null||isNaN(h)) return "--:--"; h=fixH(h); let hh=Math.floor(h); let mm=Math.round((h-hh)*60); if(mm===60){mm=0;hh=(hh+1)%24;} return String(hh).padStart(2,"0")+":"+String(mm).padStart(2,"0"); }
+function setupPrayerTimer(){ if(prayerTimer) clearInterval(prayerTimer); prayerTimer=setInterval(function(){ if(currentUser && !isAdmin && ui.tab==="prayer"){ render(); } else { clearInterval(prayerTimer); prayerTimer=null; } }, 60000); }
+function prayerHtml(){
+  let h='';
+  h += '<div class="card" style="padding:14px;margin-bottom:16px;">';
+  h += '<label>'+t("chooseCity")+'</label>';
+  h += '<select onchange="pickCity(this.value)"><option value="">—</option>';
+  CITIES.forEach(function(c,i){ const sel=(prayerLoc && prayerLoc.name===cityLabel(c))?" selected":""; h+='<option value="'+i+'"'+sel+'>'+esc(cityLabel(c))+'</option>'; });
+  h += '</select>';
+  h += '<button class="submit dark" style="margin-top:4px;" onclick="useLocation()">📍 '+t("useLocation")+'</button>';
+  h += '</div>';
+  if(!prayerLoc) return h;
+  const now=new Date();
+  const T=computePrayer(prayerLoc.lat,prayerLoc.lng,prayerLoc.tz,now);
+  const utcH=now.getUTCHours()+now.getUTCMinutes()/60;
+  const localH=fixH(utcH+prayerLoc.tz);
+  const only=[["pFajr",T.fajr],["pDhuhr",T.dhuhr],["pAsr",T.asr],["pMaghrib",T.maghrib],["pIsha",T.isha]];
+  let nextName=null,nextT=null;
+  for(let i=0;i<only.length;i++){ if(only[i][1]!==null && only[i][1]>localH){ nextName=only[i][0]; nextT=only[i][1]; break; } }
+  if(nextName===null && only[0][1]!==null){ nextName=only[0][0]; nextT=only[0][1]+24; }
+  h += '<div class="total dark" style="text-align:center;"><div class="l">🕌 '+esc(prayerLoc.name)+'</div>';
+  if(nextName!==null){ const rem=nextT-localH; const rh=Math.floor(rem), rm=Math.round((rem-rh)*60);
+    h += '<div style="font-size:13px;opacity:.85;margin-top:6px;">'+t("nextPrayer")+'：'+t(nextName)+'</div>';
+    h += '<div class="n" style="font-size:24px;">'+t("remain")+' '+rh+'h '+String(rm<0?0:rm).padStart(2,"0")+'m</div>'; }
+  h += '</div>';
+  const all=[["pFajr",T.fajr],["pSunrise",T.sunrise],["pDhuhr",T.dhuhr],["pAsr",T.asr],["pMaghrib",T.maghrib],["pIsha",T.isha]];
+  all.forEach(function(row){ const isNext=(row[0]===nextName);
+    h+='<div class="praytime'+(isNext?" next":"")+'"><div class="prayname">'+t(row[0])+'</div><div class="praytm">'+hm(row[1])+'</div></div>'; });
+  return h;
+}
 function showLogin(msg){
   document.getElementById("app").innerHTML =
     '<div class="loginwrap"><div class="logincard">'
@@ -312,8 +461,7 @@ function showLogin(msg){
     + '<label>'+t("loginPass")+'</label><input type="password" id="login_pass" autocomplete="current-password">'
     + '<button class="submit dark" onclick="doLogin()">'+t("login")+'</button>'
     + '<div style="text-align:center;margin-top:14px;"><span class="langsw" style="display:inline-flex;">'
-    + '<button class="'+(lang==="ja"?"on":"")+'" onclick="setLang(\'ja\')">日本語</button>'
-    + '<button class="'+(lang==="en"?"on":"")+'" onclick="setLang(\'en\')">EN</button>'
+    + langSwHtml()
     + '</span></div>'
     + '</div></div>';
 }
@@ -327,6 +475,7 @@ async function doLogin(){
   currentUser = id; isAdmin = !!acc.admin;
   if(isAdmin){ showAdmin(); return; }
   await loadUserData();
+  loadPrayerLoc();
   render();
 }
 
@@ -344,7 +493,7 @@ function showAdmin(){
     + '<div class="head"><div class="logo">🚗</div><h1>'+t("adminPage")+'</h1>'
     + '<div style="margin-left:auto;display:flex;gap:6px;align-items:center;">'
     + '<button class="logoutbtn" onclick="logout()">'+t("logout")+'</button>'
-    + '<span class="langsw"><button class="'+(lang==="ja"?"on":"")+'" onclick="setLang(\'ja\')">日本語</button><button class="'+(lang==="en"?"on":"")+'" onclick="setLang(\'en\')">EN</button></span>'
+    + '<span class="langsw">'+langSwHtml()+'</span>'
     + '</div></div>'
     + '<div class="card" style="padding:16px;margin-bottom:16px;">'
     + '<div style="font-weight:700;margin-bottom:12px;">'+t("addUser")+'</div>'
@@ -414,13 +563,13 @@ function render(){
     + '<div style="margin-left:auto;display:flex;gap:6px;align-items:center;">'
     + '<button class="logoutbtn" onclick="logout()">'+t("logout")+'</button>'
     + '<span class="langsw">'
-    + '<button class="'+(lang==="ja"?"on":"")+'" onclick="setLang(\'ja\')">日本語</button>'
-    + '<button class="'+(lang==="en"?"on":"")+'" onclick="setLang(\'en\')">EN</button>'
+    + langSwHtml()
     + '</span></div></div>';
 
   html += '<div class="card tabs">'
-    + tabBtn("expense",t("tabExpense")) + tabBtn("estimate",t("tabEstimate")) + tabBtn("purchase",t("tabPurchase"))
+    + tabBtn("expense",t("tabExpense")) + tabBtn("estimate",t("tabEstimate")) + tabBtn("purchase",t("tabPurchase")) + tabBtn("prayer",t("tabPrayer"))
     + '</div>';
+  if(ui.tab==="prayer"){ html += prayerHtml(); html += '</div>'; document.getElementById("app").innerHTML = html; setupPrayerTimer(); return; }
 
   if(!isPur){
     html += '<div class="card monthnav">'
@@ -642,41 +791,42 @@ function itemsEditorHtml(){
 function paperHtml(){
   const isQ = doc.type==="quote";
   const { sub, tax, grand } = docCalc();
-  const title = isQ ? t("pTitleQuote") : t("pTitleInvoice");
-  const lead = isQ ? t("pLeadQuote") : t("pLeadInvoice");
+  const dl = (lang==="ar") ? "en" : lang;
+  const title = isQ ? td("pTitleQuote") : td("pTitleInvoice");
+  const lead = isQ ? td("pLeadQuote") : td("pLeadInvoice");
   const no = (isQ?"Q-":"I-") + todayStr().split("-").join("");
-  const toText = lang==="en" ? ("To: "+(esc(doc.to)||"(customer)")) : ((esc(doc.to)||"（宛先）")+' <span style="font-size:14px;font-weight:400;">'+t("onchu")+'</span>');
-  let rows = doc.items.map(it=>{ const c=catOf(it.category); return '<tr><td>'+esc(catLabel(c))+'</td><td>'+esc(it.desc)+'</td>'
+  const toText = (dl==="ja") ? ((esc(doc.to)||"（宛先）")+' <span style="font-size:14px;font-weight:400;">'+td("onchu")+'</span>') : ("To: "+(esc(doc.to)||"(customer)"));
+  let rows = doc.items.map(it=>{ const c=catOf(it.category); return '<tr><td>'+esc(catDoc(c))+'</td><td>'+esc(it.desc)+'</td>'
     + '<td class="ta-r">'+esc(it.qty)+'</td><td class="ta-r">'+yen(it.price)+'</td>'
     + '<td class="ta-r">'+yen(Number(it.qty||0)*Number(it.price||0))+'</td></tr>'; }).join("");
   let pay = "";
   if(!isQ && (doc.due || doc.issuer.bank)){
     pay = '<div class="docpay">'
-      + (doc.due? '<div>'+t("dueP")+slash(doc.due)+'</div>':'')
-      + (doc.issuer.bank? '<div style="margin-top:4px;">'+t("bankP")+esc(doc.issuer.bank)+'</div>':'')
+      + (doc.due? '<div>'+td("dueP")+slash(doc.due)+'</div>':'')
+      + (doc.issuer.bank? '<div style="margin-top:4px;">'+td("bankP")+esc(doc.issuer.bank)+'</div>':'')
       + '</div>';
   }
-  return '<div class="sheetpaper">'
+  return '<div class="sheetpaper" dir="ltr">'
     + '<div class="doctitle">'+title+'</div>'
     + '<div class="docheader"><div>'
       + '<div class="docto">'+toText+'</div>'
       + '<div class="doclead">'+lead+'</div>'
-      + '<div class="docgrand"><div class="l">'+t("grand")+'</div><div class="n">'+yen(grand)+'</div></div>'
-    + '</div><div class="docissuer"><div>'+t("noLbl")+' '+no+'</div><div>'+t("issueDate")+' '+slash(todayStr())+'</div>'
-      + '<div class="name">'+(esc(doc.issuer.name)||(lang==="en"?"(your name)":"（発行元の名前）"))+'</div>'
+      + '<div class="docgrand"><div class="l">'+td("grand")+'</div><div class="n">'+yen(grand)+'</div></div>'
+    + '</div><div class="docissuer"><div>'+td("noLbl")+' '+no+'</div><div>'+td("issueDate")+' '+slash(todayStr())+'</div>'
+      + '<div class="name">'+(esc(doc.issuer.name)||(dl==="ja"?"（発行元の名前）":"(your name)"))+'</div>'
       + (doc.issuer.address? '<div>'+esc(doc.issuer.address)+'</div>':'')
       + (doc.issuer.tel? '<div>TEL '+esc(doc.issuer.tel)+'</div>':'')
     + '</div></div>'
     + '<table class="doctable"><thead><tr>'
-      + '<th class="ta-l">'+t("thCat")+'</th><th class="ta-l">'+t("thDesc")+'</th><th class="ta-r">'+t("thQty")+'</th><th class="ta-r">'+t("thUnit")+'</th><th class="ta-r">'+t("thAmt")+'</th>'
+      + '<th class="ta-l">'+td("thCat")+'</th><th class="ta-l">'+td("thDesc")+'</th><th class="ta-r">'+td("thQty")+'</th><th class="ta-r">'+td("thUnit")+'</th><th class="ta-r">'+td("thAmt")+'</th>'
     + '</tr></thead><tbody>'+rows+'</tbody></table>'
     + '<div class="doctotals"><div class="box">'
-      + '<div class="line"><span>'+t("subtotal")+'</span><span>'+yen(sub)+'</span></div>'
-      + '<div class="line"><span>'+t("tax")+'</span><span>'+yen(tax)+'</span></div>'
-      + '<div class="line grand"><span>'+t("totalRow")+'</span><span>'+yen(grand)+'</span></div>'
+      + '<div class="line"><span>'+td("subtotal")+'</span><span>'+yen(sub)+'</span></div>'
+      + '<div class="line"><span>'+td("tax")+'</span><span>'+yen(tax)+'</span></div>'
+      + '<div class="line grand"><span>'+td("totalRow")+'</span><span>'+yen(grand)+'</span></div>'
     + '</div></div>'
     + pay
-    + (doc.note? '<div class="docmemo">'+t("noteP")+esc(doc.note)+'</div>':'')
+    + (doc.note? '<div class="docmemo">'+td("noteP")+esc(doc.note)+'</div>':'')
     + '</div>';
 }
 
@@ -702,6 +852,7 @@ function makePdf(){
 function renderDocPreviewOnly(){ const p=document.getElementById("docpaper"); if(p) p.innerHTML = paperHtml(); }
 function syncPrev(){ renderDocPreviewOnly(); }
 
+applyDir();
 showLogin();
 </script>
 </body>
