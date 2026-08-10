@@ -12,8 +12,8 @@
   .head { display:flex; align-items:center; gap:8px; margin-bottom:16px; }
   .logo { width:40px; height:40px; border-radius:12px; background:#1e293b; color:#fff; display:flex; align-items:center; justify-content:center; font-size:22px; }
   .card { background:#fff; border-radius:16px; box-shadow:0 1px 3px rgba(0,0,0,.06); }
-  .tabs { display:grid; grid-template-columns:repeat(5,1fr); gap:3px; padding:5px; margin-bottom:16px; }
-  .tab { border:none; background:none; border-radius:10px; padding:9px 1px; font-size:12px; font-weight:600; color:#64748b; cursor:pointer; font-family:inherit; }
+  .tabs { display:flex; gap:3px; padding:5px; margin-bottom:16px; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  .tab { flex:1 0 auto; min-width:58px; white-space:nowrap; border:none; background:none; border-radius:10px; padding:9px 8px; font-size:12px; font-weight:600; color:#64748b; cursor:pointer; font-family:inherit; }
   .tab.on { background:#1e293b; color:#fff; }
   .monthnav { display:flex; align-items:center; justify-content:space-between; padding:8px; margin-bottom:16px; }
   .monthnav button { border:none; background:none; padding:8px; border-radius:12px; color:#64748b; cursor:pointer; font-size:20px; }
@@ -142,6 +142,11 @@
   .praytm { font-size:20px; font-weight:700; }
   .gcalbtn { display:block; text-align:center; margin-top:10px; text-decoration:none; background:#eff6ff; color:#1d4ed8; border-radius:12px; padding:9px; font-size:13px; font-weight:600; }
   .gcalbtn:hover { background:#dbeafe; }
+  .photos { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .photothumb { width:72px; height:72px; object-fit:cover; border-radius:8px; cursor:pointer; }
+  .photoedit { position:relative; display:inline-block; margin:4px; }
+  .photoedit img { width:72px; height:72px; object-fit:cover; border-radius:8px; }
+  .photoedit button { position:absolute; top:-6px; right:-6px; width:22px; height:22px; border-radius:50%; border:none; background:#ef4444; color:#fff; cursor:pointer; font-size:12px; line-height:1; }
   .no-print {}
   @media print {
     body { background:#fff; }
@@ -231,7 +236,7 @@ const L = {
     confDel:"このお客さんを削除しますか？（データも消えます）", doneChange:"変更しました。",
     tabPrayer:"お祈り", prayerTitle:"お祈りの時間", chooseCity:"都市を選ぶ", useLocation:"現在地を使う",
     locating:"現在地を取得中…", locErr:"現在地を取得できませんでした。", today:"今日", nextPrayer:"次のお祈り",
-    tabSchedule:"予定", addSchedule:"＋ 予定を追加", fSchedTime:"時間", fSchedText:"用件", saveSchedule:"この予定を記録する", titleAddSchedule:"予定を追加", noSchedules:"まだ予定がありません。<br>下の「＋ 予定を追加」から入れてみてください。", phSchedText:"例：車の引き取り、車検 など", alSchedReq:"用件を入れてください。", notifyTitle:"予定のお知らせ", gcal:"📅 Googleカレンダーに追加", backupTitle:"バックアップ", exportData:"💾 データを書き出す（保存）", importData:"📂 ファイルから戻す", importDone:"データを戻しました。", importErr:"このファイルは読み込めませんでした。", confImport:"今のデータを、選んだファイルの内容で置きかえます。よろしいですか？",
+    tabSchedule:"予定", addSchedule:"＋ 予定を追加", fSchedTime:"時間", fSchedText:"用件", saveSchedule:"この予定を記録する", titleAddSchedule:"予定を追加", noSchedules:"まだ予定がありません。<br>下の「＋ 予定を追加」から入れてみてください。", phSchedText:"例：車の引き取り、車検 など", alSchedReq:"用件を入れてください。", notifyTitle:"予定のお知らせ", gcal:"📅 Googleカレンダーに追加", backupTitle:"バックアップ", exportData:"💾 データを書き出す（保存）", importData:"📂 ファイルから戻す", importDone:"データを戻しました。", importErr:"このファイルは読み込めませんでした。", confImport:"今のデータを、選んだファイルの内容で置きかえます。よろしいですか？", tabParts:"部品", addParts:"＋ 部品を追加", titleAddParts:"部品を追加", fPartName:"部品名", fPartPrice:"価格", savePart:"この部品を記録する", noParts:"まだ部品がありません。<br>下の「＋ 部品を追加」から入れてみてください。", phPartName:"例：ヘッドライト、バンパー など", alPartReq:"部品名を入れてください。", partsHead:"中古部品", photo:"写真", addPhoto:"＋ 写真を追加",
     remain:"あと", notifyBtn:"🔔 お知らせをON", notifyOn:"お知らせはON", locLabel:"場所",
     pFajr:"ファジュル", pSunrise:"日の出", pDhuhr:"ズフル", pAsr:"アスル", pMaghrib:"マグリブ", pIsha:"イシャー"
   },
@@ -280,7 +285,7 @@ const L = {
     confDel:"Delete this customer? (data will also be removed)", doneChange:"Done.",
     tabPrayer:"Prayer", prayerTitle:"Prayer times", chooseCity:"Choose city", useLocation:"Use my location",
     locating:"Getting location…", locErr:"Could not get location.", today:"Today", nextPrayer:"Next prayer",
-    tabSchedule:"Schedule", addSchedule:"+ Add plan", fSchedTime:"Time", fSchedText:"Task", saveSchedule:"Save plan", titleAddSchedule:"Add plan", noSchedules:"No plans yet.<br>Use the + button below to add one.", phSchedText:"e.g. pick up car, inspection", alSchedReq:"Please enter a task.", notifyTitle:"Schedule reminder", gcal:"📅 Add to Google Calendar", backupTitle:"Backup", exportData:"💾 Export data", importData:"📂 Restore from file", importDone:"Data restored.", importErr:"Could not read this file.", confImport:"This will replace current data with the selected file. Continue?",
+    tabSchedule:"Schedule", addSchedule:"+ Add plan", fSchedTime:"Time", fSchedText:"Task", saveSchedule:"Save plan", titleAddSchedule:"Add plan", noSchedules:"No plans yet.<br>Use the + button below to add one.", phSchedText:"e.g. pick up car, inspection", alSchedReq:"Please enter a task.", notifyTitle:"Schedule reminder", gcal:"📅 Add to Google Calendar", backupTitle:"Backup", exportData:"💾 Export data", importData:"📂 Restore from file", importDone:"Data restored.", importErr:"Could not read this file.", confImport:"This will replace current data with the selected file. Continue?", tabParts:"Parts", addParts:"+ Add part", titleAddParts:"Add part", fPartName:"Part name", fPartPrice:"Price", savePart:"Save part", noParts:"No parts yet.<br>Use the + button below to add one.", phPartName:"e.g. headlight, bumper", alPartReq:"Please enter a part name.", partsHead:"Used parts", photo:"Photos", addPhoto:"+ Add photo",
     remain:"in", notifyBtn:"🔔 Turn on alerts", notifyOn:"Alerts on", locLabel:"Location",
     pFajr:"Fajr", pSunrise:"Sunrise", pDhuhr:"Dhuhr", pAsr:"Asr", pMaghrib:"Maghrib", pIsha:"Isha"
   },
@@ -329,7 +334,7 @@ const L = {
     confDel:"حذف هذا العميل؟ (سيتم حذف البيانات أيضاً)", doneChange:"تم.",
     tabPrayer:"الصلاة", prayerTitle:"مواقيت الصلاة", chooseCity:"اختر المدينة", useLocation:"استخدام موقعي",
     locating:"جاري تحديد الموقع…", locErr:"تعذر تحديد الموقع.", today:"اليوم", nextPrayer:"الصلاة القادمة",
-    tabSchedule:"المواعيد", addSchedule:"+ إضافة موعد", fSchedTime:"الوقت", fSchedText:"المهمة", saveSchedule:"حفظ الموعد", titleAddSchedule:"إضافة موعد", noSchedules:"لا مواعيد بعد.<br>استخدم زر + بالأسفل للإضافة.", phSchedText:"مثال: استلام سيارة، فحص", alSchedReq:"يرجى إدخال المهمة.", notifyTitle:"تذكير بالموعد", gcal:"📅 أضف إلى تقويم Google", backupTitle:"نسخة احتياطية", exportData:"💾 تصدير البيانات", importData:"📂 استعادة من ملف", importDone:"تمت استعادة البيانات.", importErr:"تعذّرت قراءة هذا الملف.", confImport:"سيحل هذا محل البيانات الحالية بمحتوى الملف المحدد. متابعة؟",
+    tabSchedule:"المواعيد", addSchedule:"+ إضافة موعد", fSchedTime:"الوقت", fSchedText:"المهمة", saveSchedule:"حفظ الموعد", titleAddSchedule:"إضافة موعد", noSchedules:"لا مواعيد بعد.<br>استخدم زر + بالأسفل للإضافة.", phSchedText:"مثال: استلام سيارة، فحص", alSchedReq:"يرجى إدخال المهمة.", notifyTitle:"تذكير بالموعد", gcal:"📅 أضف إلى تقويم Google", backupTitle:"نسخة احتياطية", exportData:"💾 تصدير البيانات", importData:"📂 استعادة من ملف", importDone:"تمت استعادة البيانات.", importErr:"تعذّرت قراءة هذا الملف.", confImport:"سيحل هذا محل البيانات الحالية بمحتوى الملف المحدد. متابعة؟", tabParts:"قطع الغيار", addParts:"+ إضافة قطعة", titleAddParts:"إضافة قطعة", fPartName:"اسم القطعة", fPartPrice:"السعر", savePart:"حفظ القطعة", noParts:"لا قطع بعد.<br>استخدم زر + بالأسفل.", phPartName:"مثال: مصباح، مصد", alPartReq:"يرجى إدخال اسم القطعة.", partsHead:"قطع مستعملة", photo:"الصور", addPhoto:"+ إضافة صورة",
     remain:"المتبقي", notifyBtn:"🔔 تفعيل التنبيه", notifyOn:"التنبيه مُفعّل", locLabel:"الموقع",
     pFajr:"الفجر", pSunrise:"الشروق", pDhuhr:"الظهر", pAsr:"العصر", pMaghrib:"المغرب", pIsha:"العشاء"
   }
@@ -346,7 +351,7 @@ function applyDir(){ document.documentElement.dir = (lang==="ar")?"rtl":"ltr"; d
 function monthLabel(y,m){ return lang==="en" ? (MONTHS_EN[m-1]+" "+y) : (y+"年"+m+"月"); }
 
 // ====== データ ======
-let db = { expenses:[], estimates:[], vehicles:[], schedules:[] };
+let db = { expenses:[], estimates:[], vehicles:[], schedules:[], parts:[] };
 let currentUser = null, isAdmin = false, accounts = {};
 function dataPath(uid){ return FIREBASE_URL + "/car-kanri/data/" + encodeURIComponent(uid) + ".json"; }
 
@@ -362,14 +367,15 @@ async function saveAccounts(){
   try { await fetch(FIREBASE_URL+"/car-kanri/accounts.json", { method:"PUT", headers:{"Content-Type":"application/json"}, body: JSON.stringify(accounts) }); } catch(e){}
 }
 async function loadUserData(){
-  db = { expenses:[], estimates:[], vehicles:[], schedules:[] };
+  db = { expenses:[], estimates:[], vehicles:[], schedules:[], parts:[] };
   try {
     const r = await fetch(dataPath(currentUser));
-    if(r.ok){ const d = await r.json(); if(d && typeof d==="object"){ db = { expenses:d.expenses||[], estimates:d.estimates||[], vehicles:d.vehicles||[], schedules:d.schedules||[] }; } }
+    if(r.ok){ const d = await r.json(); if(d && typeof d==="object"){ db = { expenses:d.expenses||[], estimates:d.estimates||[], vehicles:d.vehicles||[], schedules:d.schedules||[], parts:d.parts||[] }; } }
     try { localStorage.setItem(KEY+"_"+currentUser, JSON.stringify(db)); } catch(_){}
   } catch(e){
     try { const raw=localStorage.getItem(KEY+"_"+currentUser); if(raw) db=JSON.parse(raw); } catch(_){}
   }
+  loadPhotos();
 }
 function logout(){ currentUser=null; isAdmin=false; showLogin(); }
 
@@ -573,11 +579,11 @@ function render(){
     + '</span></div></div>';
 
   html += '<div class="card tabs">'
-    + tabBtn("prayer",t("tabPrayer")) + tabBtn("schedule",t("tabSchedule")) + tabBtn("expense",t("tabExpense")) + tabBtn("estimate",t("tabEstimate")) + tabBtn("purchase",t("tabPurchase"))
+    + tabBtn("prayer",t("tabPrayer")) + tabBtn("schedule",t("tabSchedule")) + tabBtn("expense",t("tabExpense")) + tabBtn("estimate",t("tabEstimate")) + tabBtn("purchase",t("tabPurchase")) + tabBtn("parts",t("tabParts"))
     + '</div>';
   if(ui.tab==="prayer"){ html += prayerHtml(); html += '</div>'; document.getElementById("app").innerHTML = html; setupPrayerTimer(); return; }
 
-  if(!isPur){
+  if(!isPur && ui.tab!=="parts"){
     html += '<div class="card monthnav">'
       + '<button onclick="moveMonth(-1)">‹</button>'
       + '<div class="monthlabel">'+label+'</div>'
@@ -587,6 +593,9 @@ function render(){
   if(ui.tab==="schedule"){
     const sl = (db.schedules||[]).filter(s=>s.date.startsWith(monthKey())).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
     html += scheduleListHtml(sl);
+  } else if(ui.tab==="parts"){
+    const pl = [...(db.parts||[])].sort((a,b)=>b.date.localeCompare(a.date));
+    html += partsListHtml(pl);
   } else if(isPur){
     const vs = [...db.vehicles].sort((a,b)=>b.date.localeCompare(a.date));
     const vt = vs.reduce((s,v)=>s+Number(v.cost||0),0);
@@ -617,6 +626,8 @@ function render(){
   html += '<div class="fab"><div class="fabinner">';
   if(ui.tab==="schedule"){
     html += '<button class="addbtn dark" onclick="openSForm()">'+t("addSchedule")+'</button>';
+  } else if(ui.tab==="parts"){
+    html += '<button class="addbtn dark" onclick="openPForm()">'+t("addParts")+'</button>';
   } else if(isPur){
     html += '<button class="addbtn dark" onclick="openVForm()">'+t("addPurchase")+'</button>';
   } else {
@@ -719,6 +730,90 @@ function importData(input){
   reader.readAsText(file);
 }
 
+// ====== 写真（端末内に保存） ======
+let photos = {}, vformPhotos = [], pformPhotos = [];
+function loadPhotos(){ photos={}; try{ const r=localStorage.getItem("car-photos-"+currentUser); if(r) photos=JSON.parse(r); }catch(_){} }
+function savePhotos(){ try{ localStorage.setItem("car-photos-"+currentUser, JSON.stringify(photos)); }catch(e){ alert("写真の保存容量がいっぱいです。古い写真を減らしてください。"); } }
+function addPhoto(d){ const id="p"+Date.now()+Math.floor(Math.random()*10000); photos[id]=d; savePhotos(); return id; }
+function getPhoto(id){ return photos[id]||null; }
+function readImage(file, cb){
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const img=new Image();
+    img.onload=function(){
+      const max=800; let w=img.width, h=img.height;
+      if(w>max){ h=Math.round(h*max/w); w=max; }
+      const cv=document.createElement("canvas"); cv.width=w; cv.height=h;
+      cv.getContext("2d").drawImage(img,0,0,w,h);
+      cb(cv.toDataURL("image/jpeg",0.7));
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function onPickPhoto(input, which){
+  const file=input.files && input.files[0]; if(!file){ return; }
+  readImage(file, function(dataUrl){
+    const id=addPhoto(dataUrl);
+    if(which==="v"){ vformPhotos.push(id); const el=document.getElementById("vphotos"); if(el) el.innerHTML=photoEditHtml(vformPhotos,"v"); }
+    else { pformPhotos.push(id); const el=document.getElementById("pphotos"); if(el) el.innerHTML=photoEditHtml(pformPhotos,"p"); }
+  });
+  input.value="";
+}
+function removeFormPhoto(which,id){
+  if(which==="v"){ vformPhotos=vformPhotos.filter(x=>x!==id); const el=document.getElementById("vphotos"); if(el) el.innerHTML=photoEditHtml(vformPhotos,"v"); }
+  else { pformPhotos=pformPhotos.filter(x=>x!==id); const el=document.getElementById("pphotos"); if(el) el.innerHTML=photoEditHtml(pformPhotos,"p"); }
+}
+function photoEditHtml(ids, which){
+  let h=""; (ids||[]).forEach(function(id){ const src=getPhoto(id); if(src) h+='<div class="photoedit"><img src="'+src+'"><button type="button" onclick="removeFormPhoto(\''+which+'\',\''+id+'\')">✕</button></div>'; });
+  return h;
+}
+function photoThumbsHtml(ids){
+  if(!ids || !ids.length) return "";
+  let h='<div class="photos">'; ids.forEach(function(id){ const src=getPhoto(id); if(src) h+='<img class="photothumb" src="'+src+'" onclick="viewPhoto(\''+id+'\')">'; }); h+='</div>';
+  return h;
+}
+function viewPhoto(id){ const src=getPhoto(id); if(!src) return; openModal('<div class="overlay" onclick="closeModal(event)" style="align-items:center;"><img src="'+src+'" style="max-width:92%;max-height:88vh;border-radius:12px;"></div>'); }
+
+// ====== 中古部品 ======
+function openPForm(){
+  pformPhotos=[];
+  const html = '<div class="overlay" onclick="closeModal(event)"><div class="sheet" onclick="event.stopPropagation()">'
+    + '<div class="sheethead"><h2>'+t("titleAddParts")+'</h2><button class="xbtn" onclick="closeModal()">✕</button></div>'
+    + '<label>'+t("fDate")+'</label><input type="date" id="p_date" value="'+todayStr()+'">'
+    + '<label>'+t("fPartName")+'</label><input type="text" id="p_name" placeholder="'+esc(t("phPartName"))+'">'
+    + '<label>'+t("fPartPrice")+'</label><div class="yeninput"><span>¥</span><input type="number" inputmode="numeric" id="p_price" placeholder="0"></div>'
+    + '<label>'+t("fMemo")+'</label><input type="text" id="p_memo" placeholder="'+esc(t("phMemo"))+'">'
+    + '<label>'+t("photo")+'</label><div id="pphotos"></div>'
+    + '<label class="addrow" style="cursor:pointer;display:block;text-align:center;">'+t("addPhoto")+'<input type="file" accept="image/*" style="display:none;" onchange="onPickPhoto(this,\'p\')"></label>'
+    + '<button class="submit dark" onclick="submitPart()">'+t("savePart")+'</button>'
+    + '</div></div>';
+  openModal(html);
+}
+function submitPart(){
+  const name=(document.getElementById("p_name").value||"").trim();
+  if(!name){ alert(t("alPartReq")); return; }
+  db.parts.push({ id:Date.now(), date:document.getElementById("p_date").value, name:name, price:Number(document.getElementById("p_price").value)||0, memo:(document.getElementById("p_memo").value||"").trim(), photos:pformPhotos });
+  save(); closeModal(); render();
+}
+function removePart(id){ db.parts = db.parts.filter(p=>p.id!==id); save(); render(); }
+function partsListHtml(list){
+  const hl = lang==="en" ? (t("partsHead")+" ("+list.length+")") : (t("partsHead")+"（"+list.length+"）");
+  let h = '<div class="listhead">'+hl+'</div>';
+  if(!list.length) return h + '<div class="empty">'+t("noParts")+'</div>';
+  list.forEach(function(p){
+    h += '<div class="vcard"><div class="vtop">'
+      + '<div><div class="vmodel">'+esc(p.name)+'</div>'
+      + (p.price? '<div class="vgrade">'+yen(p.price)+'</div>':'')+'</div>'
+      + '<button class="del" onclick="removePart('+p.id+')">🗑</button></div>'
+      + '<div class="vmeta"><span>'+mmdd(p.date)+'</span></div>'
+      + (p.memo? '<div class="memo" style="white-space:normal;margin-top:4px;">'+esc(p.memo)+'</div>':'')
+      + photoThumbsHtml(p.photos)
+      + '</div>';
+  });
+  return h;
+}
+
 // ====== お知らせ（予定の時間に通知） ======
 let notifiedIds = {};
 try { notifiedIds = JSON.parse(localStorage.getItem("car-notified")||"{}"); } catch(_){}
@@ -772,6 +867,7 @@ function vehicleListHtml(vs){
       + '<div class="vmeta"><span>📏 '+kmf(v.mileage)+'</span><span>'+mmdd(v.date)+'</span></div>'
       + '<div class="vcost"><span style="font-size:18px;font-weight:700;">'+yen(v.cost)+'</span></div>'
       + (v.memo? '<div class="memo" style="white-space:normal;margin-top:4px;">'+esc(v.memo)+'</div>':'')
+      + photoThumbsHtml(v.photos)
       + '</div>';
   });
   return h;
@@ -819,6 +915,7 @@ function submitItem(){
 
 // ====== 仕入れフォーム ======
 function openVForm(){
+  vformPhotos=[];
   const html = '<div class="overlay" onclick="closeModal(event)"><div class="sheet" onclick="event.stopPropagation()">'
     + '<div class="sheethead"><h2>'+t("titleAddPurchase")+'</h2><button class="xbtn" onclick="closeModal()">✕</button></div>'
     + '<label>'+t("fPurDate")+'</label><input type="date" id="v_date" value="'+todayStr()+'">'
@@ -827,6 +924,8 @@ function openVForm(){
     + '<label>'+t("fMileage")+'</label><input type="number" inputmode="numeric" id="v_mileage" placeholder="'+esc(t("phMileage"))+'">'
     + '<label>'+t("fCost")+'</label><div class="yeninput"><span>¥</span><input type="number" inputmode="numeric" id="v_cost" placeholder="0"></div>'
     + '<label>'+t("fMemo")+'</label><input type="text" id="v_memo" placeholder="'+esc(t("phMemoCar"))+'">'
+    + '<label>'+t("photo")+'</label><div id="vphotos"></div>'
+    + '<label class="addrow" style="cursor:pointer;display:block;text-align:center;">'+t("addPhoto")+'<input type="file" accept="image/*" style="display:none;" onchange="onPickPhoto(this,\'v\')"></label>'
     + '<button class="submit dark" onclick="submitVehicle()">'+t("savePurchase")+'</button>'
     + '</div></div>';
   openModal(html);
@@ -839,7 +938,7 @@ function submitVehicle(){
     grade:document.getElementById("v_grade").value.trim(),
     mileage:Number(document.getElementById("v_mileage").value)||0,
     cost:Number(document.getElementById("v_cost").value)||0,
-    memo:document.getElementById("v_memo").value.trim()
+    memo:document.getElementById("v_memo").value.trim(), photos:vformPhotos
   });
   save(); closeModal(); render();
 }
