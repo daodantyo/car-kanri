@@ -231,7 +231,7 @@ const L = {
     confDel:"このお客さんを削除しますか？（データも消えます）", doneChange:"変更しました。",
     tabPrayer:"お祈り", prayerTitle:"お祈りの時間", chooseCity:"都市を選ぶ", useLocation:"現在地を使う",
     locating:"現在地を取得中…", locErr:"現在地を取得できませんでした。", today:"今日", nextPrayer:"次のお祈り",
-    tabSchedule:"予定", addSchedule:"＋ 予定を追加", fSchedTime:"時間", fSchedText:"用件", saveSchedule:"この予定を記録する", titleAddSchedule:"予定を追加", noSchedules:"まだ予定がありません。<br>下の「＋ 予定を追加」から入れてみてください。", phSchedText:"例：車の引き取り、車検 など", alSchedReq:"用件を入れてください。", notifyTitle:"予定のお知らせ", gcal:"📅 Googleカレンダーに追加",
+    tabSchedule:"予定", addSchedule:"＋ 予定を追加", fSchedTime:"時間", fSchedText:"用件", saveSchedule:"この予定を記録する", titleAddSchedule:"予定を追加", noSchedules:"まだ予定がありません。<br>下の「＋ 予定を追加」から入れてみてください。", phSchedText:"例：車の引き取り、車検 など", alSchedReq:"用件を入れてください。", notifyTitle:"予定のお知らせ", gcal:"📅 Googleカレンダーに追加", backupTitle:"バックアップ", exportData:"💾 データを書き出す（保存）", importData:"📂 ファイルから戻す", importDone:"データを戻しました。", importErr:"このファイルは読み込めませんでした。", confImport:"今のデータを、選んだファイルの内容で置きかえます。よろしいですか？",
     remain:"あと", notifyBtn:"🔔 お知らせをON", notifyOn:"お知らせはON", locLabel:"場所",
     pFajr:"ファジュル", pSunrise:"日の出", pDhuhr:"ズフル", pAsr:"アスル", pMaghrib:"マグリブ", pIsha:"イシャー"
   },
@@ -280,7 +280,7 @@ const L = {
     confDel:"Delete this customer? (data will also be removed)", doneChange:"Done.",
     tabPrayer:"Prayer", prayerTitle:"Prayer times", chooseCity:"Choose city", useLocation:"Use my location",
     locating:"Getting location…", locErr:"Could not get location.", today:"Today", nextPrayer:"Next prayer",
-    tabSchedule:"Schedule", addSchedule:"+ Add plan", fSchedTime:"Time", fSchedText:"Task", saveSchedule:"Save plan", titleAddSchedule:"Add plan", noSchedules:"No plans yet.<br>Use the + button below to add one.", phSchedText:"e.g. pick up car, inspection", alSchedReq:"Please enter a task.", notifyTitle:"Schedule reminder", gcal:"📅 Add to Google Calendar",
+    tabSchedule:"Schedule", addSchedule:"+ Add plan", fSchedTime:"Time", fSchedText:"Task", saveSchedule:"Save plan", titleAddSchedule:"Add plan", noSchedules:"No plans yet.<br>Use the + button below to add one.", phSchedText:"e.g. pick up car, inspection", alSchedReq:"Please enter a task.", notifyTitle:"Schedule reminder", gcal:"📅 Add to Google Calendar", backupTitle:"Backup", exportData:"💾 Export data", importData:"📂 Restore from file", importDone:"Data restored.", importErr:"Could not read this file.", confImport:"This will replace current data with the selected file. Continue?",
     remain:"in", notifyBtn:"🔔 Turn on alerts", notifyOn:"Alerts on", locLabel:"Location",
     pFajr:"Fajr", pSunrise:"Sunrise", pDhuhr:"Dhuhr", pAsr:"Asr", pMaghrib:"Maghrib", pIsha:"Isha"
   },
@@ -329,7 +329,7 @@ const L = {
     confDel:"حذف هذا العميل؟ (سيتم حذف البيانات أيضاً)", doneChange:"تم.",
     tabPrayer:"الصلاة", prayerTitle:"مواقيت الصلاة", chooseCity:"اختر المدينة", useLocation:"استخدام موقعي",
     locating:"جاري تحديد الموقع…", locErr:"تعذر تحديد الموقع.", today:"اليوم", nextPrayer:"الصلاة القادمة",
-    tabSchedule:"المواعيد", addSchedule:"+ إضافة موعد", fSchedTime:"الوقت", fSchedText:"المهمة", saveSchedule:"حفظ الموعد", titleAddSchedule:"إضافة موعد", noSchedules:"لا مواعيد بعد.<br>استخدم زر + بالأسفل للإضافة.", phSchedText:"مثال: استلام سيارة، فحص", alSchedReq:"يرجى إدخال المهمة.", notifyTitle:"تذكير بالموعد", gcal:"📅 أضف إلى تقويم Google",
+    tabSchedule:"المواعيد", addSchedule:"+ إضافة موعد", fSchedTime:"الوقت", fSchedText:"المهمة", saveSchedule:"حفظ الموعد", titleAddSchedule:"إضافة موعد", noSchedules:"لا مواعيد بعد.<br>استخدم زر + بالأسفل للإضافة.", phSchedText:"مثال: استلام سيارة، فحص", alSchedReq:"يرجى إدخال المهمة.", notifyTitle:"تذكير بالموعد", gcal:"📅 أضف إلى تقويم Google", backupTitle:"نسخة احتياطية", exportData:"💾 تصدير البيانات", importData:"📂 استعادة من ملف", importDone:"تمت استعادة البيانات.", importErr:"تعذّرت قراءة هذا الملف.", confImport:"سيحل هذا محل البيانات الحالية بمحتوى الملف المحدد. متابعة؟",
     remain:"المتبقي", notifyBtn:"🔔 تفعيل التنبيه", notifyOn:"التنبيه مُفعّل", locLabel:"الموقع",
     pFajr:"الفجر", pSunrise:"الشروق", pDhuhr:"الظهر", pAsr:"العصر", pMaghrib:"المغرب", pIsha:"العشاء"
   }
@@ -566,6 +566,7 @@ function render(){
 
   html += '<div class="head"><div class="logo">🚗</div><h1>'+t("appTitle")+'</h1>'
     + '<div style="margin-left:auto;display:flex;gap:6px;align-items:center;">'
+    + '<button class="logoutbtn" onclick="openBackup()">💾</button>'
     + '<button class="logoutbtn" onclick="logout()">'+t("logout")+'</button>'
     + '<span class="langsw">'
     + langSwHtml()
@@ -680,6 +681,42 @@ function gcalUrl(s){
     dates = d+"/"+d; // 終日
   }
   return "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" + encodeURIComponent(s.text||"") + "&dates=" + dates;
+}
+
+// ====== バックアップ（書き出し・復元） ======
+function openBackup(){
+  const html = '<div class="overlay" onclick="closeModal(event)"><div class="sheet" onclick="event.stopPropagation()">'
+    + '<div class="sheethead"><h2>'+t("backupTitle")+'</h2><button class="xbtn" onclick="closeModal()">✕</button></div>'
+    + '<button class="submit dark" style="margin-bottom:12px;" onclick="exportData()">'+t("exportData")+'</button>'
+    + '<label class="submit" style="display:block;text-align:center;background:#eff6ff;color:#1d4ed8;cursor:pointer;">'+t("importData")
+    + '<input type="file" accept="application/json,.json" style="display:none;" onchange="importData(this)"></label>'
+    + '</div></div>';
+  openModal(html);
+}
+function exportData(){
+  try {
+    const data = JSON.stringify(db, null, 2);
+    const blob = new Blob([data], { type:"application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "car-backup_" + todayStr().split("-").join("") + ".json";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch(e){}
+}
+function importData(input){
+  const file = input.files && input.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    try {
+      const d = JSON.parse(ev.target.result);
+      if(!d || typeof d!=="object") throw 0;
+      if(!confirm(t("confImport"))) return;
+      db = { expenses:d.expenses||[], estimates:d.estimates||[], vehicles:d.vehicles||[], schedules:d.schedules||[] };
+      save(); closeModal(); alert(t("importDone")); render();
+    } catch(e){ alert(t("importErr")); }
+  };
+  reader.readAsText(file);
 }
 
 // ====== お知らせ（予定の時間に通知） ======
