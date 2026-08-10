@@ -12,8 +12,8 @@
   .head { display:flex; align-items:center; gap:8px; margin-bottom:16px; }
   .logo { width:40px; height:40px; border-radius:12px; background:#1e293b; color:#fff; display:flex; align-items:center; justify-content:center; font-size:22px; }
   .card { background:#fff; border-radius:16px; box-shadow:0 1px 3px rgba(0,0,0,.06); }
-  .tabs { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; padding:5px; margin-bottom:16px; }
-  .tab { border:none; background:none; border-radius:12px; padding:10px 0; font-size:13px; font-weight:600; color:#64748b; cursor:pointer; font-family:inherit; }
+  .tabs { display:grid; grid-template-columns:repeat(5,1fr); gap:3px; padding:5px; margin-bottom:16px; }
+  .tab { border:none; background:none; border-radius:10px; padding:9px 1px; font-size:12px; font-weight:600; color:#64748b; cursor:pointer; font-family:inherit; }
   .tab.on { background:#1e293b; color:#fff; }
   .monthnav { display:flex; align-items:center; justify-content:space-between; padding:8px; margin-bottom:16px; }
   .monthnav button { border:none; background:none; padding:8px; border-radius:12px; color:#64748b; cursor:pointer; font-size:20px; }
@@ -229,6 +229,7 @@ const L = {
     confDel:"このお客さんを削除しますか？（データも消えます）", doneChange:"変更しました。",
     tabPrayer:"お祈り", prayerTitle:"お祈りの時間", chooseCity:"都市を選ぶ", useLocation:"現在地を使う",
     locating:"現在地を取得中…", locErr:"現在地を取得できませんでした。", today:"今日", nextPrayer:"次のお祈り",
+    tabSchedule:"予定", addSchedule:"＋ 予定を追加", fSchedTime:"時間", fSchedText:"用件", saveSchedule:"この予定を記録する", titleAddSchedule:"予定を追加", noSchedules:"まだ予定がありません。<br>下の「＋ 予定を追加」から入れてみてください。", phSchedText:"例：車の引き取り、車検 など", alSchedReq:"用件を入れてください。", notifyTitle:"予定のお知らせ",
     remain:"あと", notifyBtn:"🔔 お知らせをON", notifyOn:"お知らせはON", locLabel:"場所",
     pFajr:"ファジュル", pSunrise:"日の出", pDhuhr:"ズフル", pAsr:"アスル", pMaghrib:"マグリブ", pIsha:"イシャー"
   },
@@ -277,6 +278,7 @@ const L = {
     confDel:"Delete this customer? (data will also be removed)", doneChange:"Done.",
     tabPrayer:"Prayer", prayerTitle:"Prayer times", chooseCity:"Choose city", useLocation:"Use my location",
     locating:"Getting location…", locErr:"Could not get location.", today:"Today", nextPrayer:"Next prayer",
+    tabSchedule:"Schedule", addSchedule:"+ Add plan", fSchedTime:"Time", fSchedText:"Task", saveSchedule:"Save plan", titleAddSchedule:"Add plan", noSchedules:"No plans yet.<br>Use the + button below to add one.", phSchedText:"e.g. pick up car, inspection", alSchedReq:"Please enter a task.", notifyTitle:"Schedule reminder",
     remain:"in", notifyBtn:"🔔 Turn on alerts", notifyOn:"Alerts on", locLabel:"Location",
     pFajr:"Fajr", pSunrise:"Sunrise", pDhuhr:"Dhuhr", pAsr:"Asr", pMaghrib:"Maghrib", pIsha:"Isha"
   },
@@ -325,6 +327,7 @@ const L = {
     confDel:"حذف هذا العميل؟ (سيتم حذف البيانات أيضاً)", doneChange:"تم.",
     tabPrayer:"الصلاة", prayerTitle:"مواقيت الصلاة", chooseCity:"اختر المدينة", useLocation:"استخدام موقعي",
     locating:"جاري تحديد الموقع…", locErr:"تعذر تحديد الموقع.", today:"اليوم", nextPrayer:"الصلاة القادمة",
+    tabSchedule:"المواعيد", addSchedule:"+ إضافة موعد", fSchedTime:"الوقت", fSchedText:"المهمة", saveSchedule:"حفظ الموعد", titleAddSchedule:"إضافة موعد", noSchedules:"لا مواعيد بعد.<br>استخدم زر + بالأسفل للإضافة.", phSchedText:"مثال: استلام سيارة، فحص", alSchedReq:"يرجى إدخال المهمة.", notifyTitle:"تذكير بالموعد",
     remain:"المتبقي", notifyBtn:"🔔 تفعيل التنبيه", notifyOn:"التنبيه مُفعّل", locLabel:"الموقع",
     pFajr:"الفجر", pSunrise:"الشروق", pDhuhr:"الظهر", pAsr:"العصر", pMaghrib:"المغرب", pIsha:"العشاء"
   }
@@ -341,7 +344,7 @@ function applyDir(){ document.documentElement.dir = (lang==="ar")?"rtl":"ltr"; d
 function monthLabel(y,m){ return lang==="en" ? (MONTHS_EN[m-1]+" "+y) : (y+"年"+m+"月"); }
 
 // ====== データ ======
-let db = { expenses:[], estimates:[], vehicles:[] };
+let db = { expenses:[], estimates:[], vehicles:[], schedules:[] };
 let currentUser = null, isAdmin = false, accounts = {};
 function dataPath(uid){ return FIREBASE_URL + "/car-kanri/data/" + encodeURIComponent(uid) + ".json"; }
 
@@ -357,10 +360,10 @@ async function saveAccounts(){
   try { await fetch(FIREBASE_URL+"/car-kanri/accounts.json", { method:"PUT", headers:{"Content-Type":"application/json"}, body: JSON.stringify(accounts) }); } catch(e){}
 }
 async function loadUserData(){
-  db = { expenses:[], estimates:[], vehicles:[] };
+  db = { expenses:[], estimates:[], vehicles:[], schedules:[] };
   try {
     const r = await fetch(dataPath(currentUser));
-    if(r.ok){ const d = await r.json(); if(d && typeof d==="object"){ db = { expenses:d.expenses||[], estimates:d.estimates||[], vehicles:d.vehicles||[] }; } }
+    if(r.ok){ const d = await r.json(); if(d && typeof d==="object"){ db = { expenses:d.expenses||[], estimates:d.estimates||[], vehicles:d.vehicles||[], schedules:d.schedules||[] }; } }
     try { localStorage.setItem(KEY+"_"+currentUser, JSON.stringify(db)); } catch(_){}
   } catch(e){
     try { const raw=localStorage.getItem(KEY+"_"+currentUser); if(raw) db=JSON.parse(raw); } catch(_){}
@@ -544,7 +547,7 @@ async function save(){
 
 // ====== 画面状態 ======
 const now = new Date();
-let ui = { tab:"expense", y:now.getFullYear(), m:now.getMonth()+1 };
+let ui = { tab:"prayer", y:now.getFullYear(), m:now.getMonth()+1 };
 function moveMonth(d){ let y=ui.y, m=ui.m+d; if(m<1){m=12;y--;} if(m>12){m=1;y++;} ui.y=y; ui.m=m; render(); }
 function monthKey(){ return ui.y+"-"+String(ui.m).padStart(2,"0"); }
 function curList(){
@@ -567,7 +570,7 @@ function render(){
     + '</span></div></div>';
 
   html += '<div class="card tabs">'
-    + tabBtn("expense",t("tabExpense")) + tabBtn("estimate",t("tabEstimate")) + tabBtn("purchase",t("tabPurchase")) + tabBtn("prayer",t("tabPrayer"))
+    + tabBtn("prayer",t("tabPrayer")) + tabBtn("schedule",t("tabSchedule")) + tabBtn("expense",t("tabExpense")) + tabBtn("estimate",t("tabEstimate")) + tabBtn("purchase",t("tabPurchase"))
     + '</div>';
   if(ui.tab==="prayer"){ html += prayerHtml(); html += '</div>'; document.getElementById("app").innerHTML = html; setupPrayerTimer(); return; }
 
@@ -578,7 +581,10 @@ function render(){
       + '<button onclick="moveMonth(1)">›</button></div>';
   }
 
-  if(isPur){
+  if(ui.tab==="schedule"){
+    const sl = (db.schedules||[]).filter(s=>s.date.startsWith(monthKey())).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+    html += scheduleListHtml(sl);
+  } else if(isPur){
     const vs = [...db.vehicles].sort((a,b)=>b.date.localeCompare(a.date));
     const vt = vs.reduce((s,v)=>s+Number(v.cost||0),0);
     const sumline = lang==="en" ? (vs.length+" "+t("carsUnit")+" ・ "+t("total")) : ("仕入れ "+vs.length+"台 ・ 仕入れ総額");
@@ -606,7 +612,9 @@ function render(){
   html += '</div>';
 
   html += '<div class="fab"><div class="fabinner">';
-  if(isPur){
+  if(ui.tab==="schedule"){
+    html += '<button class="addbtn dark" onclick="openSForm()">'+t("addSchedule")+'</button>';
+  } else if(isPur){
     html += '<button class="addbtn dark" onclick="openVForm()">'+t("addPurchase")+'</button>';
   } else {
     html += '<button class="addbtn '+(isEst?"indigo":"dark")+'" onclick="openForm()">'+(isEst?t("addEstimate"):t("addExpense"))+'</button>';
@@ -618,6 +626,60 @@ function render(){
 
 function tabBtn(key,text){ return '<button class="tab'+(ui.tab===key?" on":"")+'" onclick="setTab(\''+key+'\')">'+text+'</button>'; }
 function setTab(t2){ ui.tab=t2; render(); }
+
+// ====== 予定表 ======
+function scheduleListHtml(list){
+  if(list.length===0){ return '<div class="empty">'+t("noSchedules")+'</div>'; }
+  let h="";
+  list.forEach(function(s){
+    h += '<div class="row"><div class="rowtop">'
+      + '<div class="dot sky">📅</div>'
+      + '<div class="rowmid"><div><span class="chip sky">'+esc(mmdd(s.date))+(s.time?(' '+esc(s.time)):'')+'</span></div>'
+      + '<div class="memo" style="white-space:normal;">'+esc(s.text)+'</div></div>'
+      + '<button class="del" onclick="removeSchedule('+s.id+')">🗑</button>'
+      + '</div></div>';
+  });
+  return h;
+}
+function openSForm(){
+  requestNotify();
+  const html = '<div class="overlay" onclick="closeModal(event)"><div class="sheet" onclick="event.stopPropagation()">'
+    + '<div class="sheethead"><h2>'+t("titleAddSchedule")+'</h2><button class="xbtn" onclick="closeModal()">✕</button></div>'
+    + '<label>'+t("fDate")+'</label><input type="date" id="s_date" value="'+todayStr()+'">'
+    + '<label>'+t("fSchedTime")+'</label><input type="time" id="s_time">'
+    + '<label>'+t("fSchedText")+'</label><input type="text" id="s_text" placeholder="'+esc(t("phSchedText"))+'">'
+    + '<button class="submit dark" onclick="submitSchedule()">'+t("saveSchedule")+'</button>'
+    + '</div></div>';
+  openModal(html);
+}
+function submitSchedule(){
+  const text=(document.getElementById("s_text").value||"").trim();
+  if(!text){ alert(t("alSchedReq")); return; }
+  db.schedules.push({ id:Date.now(), date:document.getElementById("s_date").value, time:document.getElementById("s_time").value||"", text:text });
+  save(); closeModal(); render();
+}
+function removeSchedule(id){ db.schedules = db.schedules.filter(s=>s.id!==id); save(); render(); }
+
+// ====== お知らせ（予定の時間に通知） ======
+let notifiedIds = {};
+try { notifiedIds = JSON.parse(localStorage.getItem("car-notified")||"{}"); } catch(_){}
+function requestNotify(){ try{ if("Notification" in window && Notification.permission==="default"){ Notification.requestPermission(); } }catch(_){} }
+function checkSchedules(){
+  try {
+    if(!("Notification" in window) || Notification.permission!=="granted" || !currentUser) return;
+    const now=new Date();
+    const ymd=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0");
+    const hm=String(now.getHours()).padStart(2,"0")+":"+String(now.getMinutes()).padStart(2,"0");
+    (db.schedules||[]).forEach(function(s){
+      if(s.date===ymd && s.time===hm && !notifiedIds[s.id]){
+        try{ new Notification(t("notifyTitle"),{ body:s.text }); }catch(e){}
+        notifiedIds[s.id]=1;
+        try{ localStorage.setItem("car-notified",JSON.stringify(notifiedIds)); }catch(_){}
+      }
+    });
+  } catch(e){}
+}
+setInterval(checkSchedules, 30000);
 
 function itemListHtml(list, isEst){
   if(list.length===0){ return '<div class="empty">'+(isEst?t("noEstimates"):t("noRecords"))+'</div>'; }
