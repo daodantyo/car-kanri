@@ -437,7 +437,7 @@ async function loadUserData(){
   }
   loadPhotos();
 }
-function logout(){ currentUser=null; isAdmin=false; showLogin(); }
+function logout(){ currentUser=null; isAdmin=false; try{ localStorage.removeItem("car-session"); }catch(_){} showLogin(); }
 
 // ====== お祈り（礼拝時刻） ======
 const CITIES = [
@@ -544,6 +544,7 @@ async function doLogin(){
   const acc = accounts[id];
   if(!acc || acc.pass !== pw){ showLogin(t("loginErr")); return; }
   currentUser = id; isAdmin = !!acc.admin;
+  try{ localStorage.setItem("car-session", JSON.stringify({id:id, admin:isAdmin})); }catch(_){}
   if(isAdmin){ showAdmin(); return; }
   await loadUserData();
   loadPrayerLoc();
@@ -1208,7 +1209,23 @@ function renderDocPreviewOnly(){ const p=document.getElementById("docpaper"); if
 function syncPrev(){ renderDocPreviewOnly(); }
 
 applyDir();
-showLogin();
+function boot(){
+  let sess=null;
+  try{ const s=localStorage.getItem("car-session"); if(s) sess=JSON.parse(s); }catch(_){}
+  if(sess && sess.id){
+    document.getElementById("app").innerHTML = '<div style="padding:60px 20px;text-align:center;color:#94a3b8;">'+t("loading")+'</div>';
+    fetchAccounts().then(function(){
+      const acc=accounts[sess.id];
+      if(!acc){ try{ localStorage.removeItem("car-session"); }catch(_){} showLogin(); return; }
+      currentUser=sess.id; isAdmin=!!acc.admin;
+      if(isAdmin){ showAdmin(); return; }
+      loadUserData().then(function(){ if(typeof loadPrayerLoc==="function") loadPrayerLoc(); render(); });
+    });
+  } else {
+    showLogin();
+  }
+}
+boot();
 </script>
 </body>
 </html>
