@@ -183,13 +183,13 @@ const ENDPOINT = FIREBASE_URL + "/" + CLOUD_PATH + ".json";
 
 // ====== 費目 ======
 const CATS = [
-  { key:"部品", ja:"部品", en:"Parts", ar:"قطع غيار", emoji:"🔩", cls:"sky" },
-  { key:"修理", ja:"修理", en:"Repair", ar:"إصلاح", emoji:"🔧", cls:"amber" },
-  { key:"検査", ja:"検査", en:"Inspection", ar:"فحص", emoji:"📋", cls:"emerald" },
-  { key:"輸送費", ja:"輸送費", en:"Shipping", ar:"شحن", emoji:"🚚", cls:"violet" },
+  { key:"部品", ja:"部品", en:"Parts", ar:"قطع غيار", ur:"پرزے", emoji:"🔩", cls:"sky" },
+  { key:"修理", ja:"修理", en:"Repair", ar:"إصلاح", ur:"مرمت", emoji:"🔧", cls:"amber" },
+  { key:"検査", ja:"検査", en:"Inspection", ar:"فحص", ur:"معائنہ", emoji:"📋", cls:"emerald" },
+  { key:"輸送費", ja:"輸送費", en:"Shipping", ar:"شحن", ur:"ترسیل", emoji:"🚚", cls:"violet" },
 ];
 const catOf = k => CATS.find(c=>c.key===k) || CATS[0];
-const catLabel = c => lang==="ar" ? c.ar : (lang==="en" ? c.en : c.ja);
+const catLabel = c => lang==="ur" ? c.ur : (lang==="ar" ? c.ar : (lang==="en" ? c.en : c.ja));
 const catDoc = c => lang==="ja" ? c.ja : c.en;
 const yen = n => "¥" + Number(n||0).toLocaleString("ja-JP");
 const kmf = n => Number(n||0).toLocaleString("ja-JP") + " km";
@@ -347,18 +347,68 @@ const L = {
     tabSchedule:"المواعيد", addSchedule:"+ إضافة موعد", fSchedTime:"الوقت", fSchedText:"المهمة", saveSchedule:"حفظ الموعد", titleAddSchedule:"إضافة موعد", noSchedules:"لا مواعيد بعد.<br>استخدم زر + بالأسفل للإضافة.", phSchedText:"مثال: استلام سيارة، فحص", alSchedReq:"يرجى إدخال المهمة.", notifyTitle:"تذكير بالموعد", gcal:"📅 أضف إلى تقويم Google", backupTitle:"نسخة احتياطية", exportData:"💾 تصدير البيانات", importData:"📂 استعادة من ملف", importDone:"تمت استعادة البيانات.", importErr:"تعذّرت قراءة هذا الملف.", confImport:"سيحل هذا محل البيانات الحالية بمحتوى الملف المحدد. متابعة؟", tabParts:"قطع الغيار", addParts:"+ إضافة قطعة", titleAddParts:"إضافة قطعة", fPartName:"اسم القطعة", fPartPrice:"السعر", savePart:"حفظ القطعة", noParts:"لا قطع بعد.<br>استخدم زر + بالأسفل.", phPartName:"مثال: مصباح، مصد", alPartReq:"يرجى إدخال اسم القطعة.", partsHead:"قطع مستعملة", photo:"الصور", addPhoto:"+ إضافة صورة", tabMarket:"السوق", mktAdd:"+ إضافة إعلان", mktSave:"نشر", mktTitle:"إضافة إعلان", mktKind:"النوع", mktCar:"سيارة", mktPart:"قطعة", mktName:"الاسم", mktPrice:"السعر", mktArea:"المنطقة", mktContact:"التواصل (لاين / هاتف)", phMktName:"مثال: ألفارد / مصباح", phMktArea:"مثال: طوكيو / دبي", phMktContact:"مثال: معرف لاين، رقم الهاتف", mktNone:"لا إعلانات بعد.<br>استخدم + إضافة إعلان بالأسفل.", mktAll:"الإعلانات", mktShareNote:"⚠️ كل ما تنشره هنا، بما في ذلك الصور، مرئي لجميع المستخدمين.", alMktName:"يرجى إدخال الاسم.", confDel2:"حذف هذا الإعلان؟",
     remain:"المتبقي", notifyBtn:"🔔 تفعيل التنبيه", notifyOn:"التنبيه مُفعّل", locLabel:"الموقع",
     pFajr:"الفجر", pSunrise:"الشروق", pDhuhr:"الظهر", pAsr:"العصر", pMaghrib:"المغرب", pIsha:"العشاء"
+  },
+  ur:{
+    appTitle:"گاڑی مینیجر", tabExpense:"اخراجات", tabEstimate:"تخمینہ", tabPurchase:"خریداری",
+    total:"کل", scheduled:"طے شدہ",
+    makeDoc:"📄 کوٹیشن / انوائس بنائیں",
+    records:"ریکارڈز", estWord:"تخمینہ",
+    noRecords:"ابھی کوئی ریکارڈ نہیں۔<br>نیچے + بٹن سے شامل کریں۔",
+    noEstimates:"ابھی کوئی تخمینہ نہیں۔<br>نیچے + بٹن سے شامل کریں۔",
+    noVehicles:"ابھی کوئی گاڑی نہیں۔<br>نیچے + بٹن سے شامل کریں۔",
+    addExpense:"+ اخراجات شامل کریں", addEstimate:"+ تخمینہ شامل کریں", addPurchase:"+ گاڑی شامل کریں",
+    paid:"✓ ادا ہو گیا ← اخراجات میں منتقل کریں",
+    purchasedCars:"خریدی گئی گاڑیاں", carsUnit:"گاڑیاں",
+    fDate:"تاریخ", fSched:"طے شدہ تاریخ", fCategory:"قسم", fAmount:"رقم", fMemo:"نوٹ (اختیاری)",
+    fPurDate:"خریداری کی تاریخ", fModel:"ماڈل", fGrade:"گریڈ", fMileage:"مائلیج (کلومیٹر)", fCost:"لاگت",
+    saveExpense:"محفوظ کریں", saveEstimate:"تخمینہ محفوظ کریں", savePurchase:"گاڑی محفوظ کریں",
+    titleAddExpense:"اخراجات شامل کریں", titleAddEstimate:"تخمینہ شامل کریں", titleAddPurchase:"گاڑی شامل کریں",
+    phMemo:"مثلاً: ٹائر کی تبدیلی", phModel:"مثلاً: Hiace", phGrade:"مثلاً: Super GL",
+    phMileage:"مثلاً: 82000", phMemoCar:"مثلاً: چاندی رنگ، بغیر حادثہ",
+    docTitle:"دستاویز بنائیں", quote:"کوٹیشن", invoice:"انوائس",
+    to:"بنام (گاہک کا نام)", phTo:"مثلاً: Yamada Motors",
+    from:"منجانب (آپ کی معلومات)", phFromName:"دکان / کمپنی کا نام", phFromAddr:"پتہ", phFromTel:"فون",
+    items:"اشیاء", addItem:"+ آئٹم شامل کریں", phDesc:"تفصیل", qty:"مقدار", unit:"فی یونٹ قیمت",
+    due:"ادائیگی کی تاریخ", bank:"بینک ٹرانسفر", phBank:"مثلاً: ABC بینک، اکاؤنٹ 1234567",
+    note:"نوٹ (اختیاری)", phNote:"مثلاً: 30 دن کے لیے کارآمد",
+    prevNote:"دستاویز کا معائنہ نیچے ہے۔ چیک کر کے PDF ڈاؤن لوڈ دبائیں۔",
+    close:"بند کریں", pdf:"📄 PDF ڈاؤن لوڈ",
+    pTitleQuote:"QUOTATION", pTitleInvoice:"INVOICE",
+    pLeadQuote:"", pLeadInvoice:"",
+    onchu:"", grand:"", noLbl:"No.", issueDate:"",
+    thCat:"", thDesc:"", thQty:"", thUnit:"", thAmt:"",
+    subtotal:"", tax:"", totalRow:"",
+    dueP:"", bankP:"", noteP:"",
+    loading:"لوڈ ہو رہا ہے…",
+    alAmount:"براہ کرم رقم درج کریں۔", alModel:"براہ کرم ماڈل درج کریں۔",
+    alPdfNot:"PDF تیار نہیں۔ انٹرنیٹ سے جڑ کر دوبارہ کوشش کریں۔",
+    alPdfErr:"PDF بنانے میں ناکامی۔ دوبارہ کوشش کریں۔",
+    login:"لاگ ان", logout:"لاگ آؤٹ", loginId:"آئی ڈی", loginPass:"پاس ورڈ",
+    loginErr:"آئی ڈی یا پاس ورڈ غلط ہے", adminPage:"ایڈمن", addUser:"گاہک شامل کریں",
+    userName:"نام", userPass:"پاس ورڈ", addBtn:"شامل کریں", customers:"گاہک",
+    noCustomers:"ابھی کوئی گاہک نہیں", changeAdminPass:"ایڈمن پاس ورڈ تبدیل کریں",
+    newPass:"نیا پاس ورڈ", changeBtn:"تبدیل کریں",
+    phCustName:"مثلاً: احمد", phCustId:"مثلاً: ahmed", phCustPass:"مثلاً: 1234",
+    alUserReq:"براہ کرم آئی ڈی اور پاس ورڈ درج کریں۔", alUserDup:"یہ آئی ڈی پہلے سے استعمال میں ہے۔",
+    confDel:"اس گاہک کو حذف کریں؟ (ڈیٹا بھی حذف ہو جائے گا)", doneChange:"ہو گیا۔",
+    tabPrayer:"نماز", prayerTitle:"نماز کے اوقات", chooseCity:"شہر منتخب کریں", useLocation:"میرا مقام استعمال کریں",
+    locating:"مقام حاصل کیا جا رہا ہے…", locErr:"مقام حاصل نہیں ہو سکا۔", today:"آج", nextPrayer:"اگلی نماز",
+    tabSchedule:"شیڈول", addSchedule:"+ منصوبہ شامل کریں", fSchedTime:"وقت", fSchedText:"کام", saveSchedule:"منصوبہ محفوظ کریں", titleAddSchedule:"منصوبہ شامل کریں", noSchedules:"ابھی کوئی منصوبہ نہیں۔<br>نیچے + بٹن سے شامل کریں۔", phSchedText:"مثلاً: گاڑی لینا، معائنہ", alSchedReq:"براہ کرم کام درج کریں۔", notifyTitle:"شیڈول یاد دہانی", gcal:"📅 گوگل کیلنڈر میں شامل کریں", backupTitle:"بیک اپ", exportData:"💾 ڈیٹا برآمد کریں", importData:"📂 فائل سے بحال کریں", importDone:"ڈیٹا بحال ہو گیا۔", importErr:"یہ فائل نہیں پڑھی جا سکی۔", confImport:"یہ موجودہ ڈیٹا کو منتخب فائل سے بدل دے گا۔ جاری رکھیں؟", tabParts:"پرزے", addParts:"+ پرزہ شامل کریں", titleAddParts:"پرزہ شامل کریں", fPartName:"پرزے کا نام", fPartPrice:"قیمت", savePart:"پرزہ محفوظ کریں", noParts:"ابھی کوئی پرزہ نہیں۔<br>نیچے + بٹن سے شامل کریں۔", phPartName:"مثلاً: ہیڈلائٹ، بمپر", alPartReq:"براہ کرم پرزے کا نام درج کریں۔", partsHead:"استعمال شدہ پرزے", photo:"تصاویر", addPhoto:"+ تصویر شامل کریں", tabMarket:"مارکیٹ", mktAdd:"+ اشتہار دیں", mktSave:"شائع کریں", mktTitle:"اشتہار دیں", mktKind:"قسم", mktCar:"گاڑی", mktPart:"پرزہ", mktName:"نام", mktPrice:"قیمت", mktArea:"علاقہ", mktContact:"رابطہ (لائن / فون)", phMktName:"مثلاً: الفارڈ / ہیڈلائٹ", phMktArea:"مثلاً: ٹوکیو / دبئی", phMktContact:"مثلاً: لائن آئی ڈی، فون نمبر", mktNone:"ابھی کوئی اشتہار نہیں۔<br>نیچے + اشتہار دیں استعمال کریں۔", mktAll:"اشتہارات", mktShareNote:"⚠️ یہاں آپ جو کچھ شائع کرتے ہیں، بشمول تصاویر، تمام صارفین کو نظر آتا ہے۔", alMktName:"براہ کرم نام درج کریں۔", confDel2:"یہ اشتہار حذف کریں؟",
+    remain:"باقی", notifyBtn:"🔔 الرٹ آن کریں", notifyOn:"الرٹ آن", locLabel:"مقام",
+    pFajr:"فجر", pSunrise:"طلوعِ آفتاب", pDhuhr:"ظہر", pAsr:"عصر", pMaghrib:"مغرب", pIsha:"عشاء"
   }
 };
 let lang = "ja";
-try { const lg = localStorage.getItem("car-lang"); if(lg==="en"||lg==="ja") lang = lg; } catch(_){}
+try { const lg = localStorage.getItem("car-lang"); if(lg==="en"||lg==="ja"||lg==="ar"||lg==="ur") lang = lg; } catch(_){}
 function t(k){ return (L[lang] && L[lang][k]!=null) ? L[lang][k] : (L.ja[k]||k); }
-function td(k){ const dl=(lang==="ar")?"en":lang; return (L[dl] && L[dl][k]!=null) ? L[dl][k] : (L.en[k]||L.ja[k]||k); }
+function td(k){ const dl=(lang==="ar"||lang==="ur")?"en":lang; return (L[dl] && L[dl][k]!=null) ? L[dl][k] : (L.en[k]||L.ja[k]||k); }
 function langSwHtml(){ return '<button class="'+(lang==="ja"?"on":"")+'" onclick="setLang(\'ja\')">日本語</button>'
   + '<button class="'+(lang==="en"?"on":"")+'" onclick="setLang(\'en\')">EN</button>'
-  + '<button class="'+(lang==="ar"?"on":"")+'" onclick="setLang(\'ar\')">ع</button>'; }
+  + '<button class="'+(lang==="ar"?"on":"")+'" onclick="setLang(\'ar\')">ع</button>'
+  + '<button class="'+(lang==="ur"?"on":"")+'" onclick="setLang(\'ur\')">اردو</button>'; }
 function setLang(l){ lang=l; try{ localStorage.setItem("car-lang",l);}catch(_){} applyDir(); if(currentUser===null){ showLogin(); } else if(isAdmin){ showAdmin(); } else { render(); } }
-function applyDir(){ document.documentElement.dir = (lang==="ar")?"rtl":"ltr"; document.documentElement.lang = lang; }
-function monthLabel(y,m){ return lang==="en" ? (MONTHS_EN[m-1]+" "+y) : (y+"年"+m+"月"); }
+function applyDir(){ document.documentElement.dir = (lang==="ar"||lang==="ur")?"rtl":"ltr"; document.documentElement.lang = lang; }
+function monthLabel(y,m){ return lang==="ja" ? (y+"年"+m+"月") : (MONTHS_EN[m-1]+" "+y); }
 
 // ====== データ ======
 let db = { expenses:[], estimates:[], vehicles:[], schedules:[], parts:[] };
@@ -611,14 +661,14 @@ function render(){
   } else if(isPur){
     const vs = [...db.vehicles].sort((a,b)=>b.date.localeCompare(a.date));
     const vt = vs.reduce((s,v)=>s+Number(v.cost||0),0);
-    const sumline = lang==="en" ? (vs.length+" "+t("carsUnit")+" ・ "+t("total")) : ("仕入れ "+vs.length+"台 ・ 仕入れ総額");
+    const sumline = lang!=="ja" ? (vs.length+" "+t("carsUnit")+" ・ "+t("total")) : ("仕入れ "+vs.length+"台 ・ 仕入れ総額");
     html += '<div class="total dark"><div class="l">'+sumline+'</div><div class="n">'+yen(vt)+'</div></div>';
     html += vehicleListHtml(vs);
   } else {
     const list = curList();
     const total = list.reduce((s,e)=>s+Number(e.amount),0);
     const kind = isEst ? t("scheduled") : t("total");
-    const tl = lang==="en" ? (label+" "+kind) : (label+"の"+kind);
+    const tl = lang!=="ja" ? (label+" "+kind) : (label+"の"+kind);
     html += '<div class="total '+(isEst?"indigo":"dark")+'"><div class="l">'+tl+'</div><div class="n">'+yen(total)+'</div></div>';
     if(isEst){ html += '<button class="docbtn" onclick="openDoc()">'+t("makeDoc")+'</button>'; }
     html += '<div class="cats">';
@@ -628,7 +678,7 @@ function render(){
     });
     html += '</div>';
     const hw = isEst ? t("estWord") : t("records");
-    const hl = lang==="en" ? (hw+" ("+list.length+")") : (hw+"（"+list.length+"件）");
+    const hl = lang!=="ja" ? (hw+" ("+list.length+")") : (hw+"（"+list.length+"件）");
     html += '<div class="listhead">'+hl+'</div>';
     html += itemListHtml(list, isEst);
   }
@@ -813,7 +863,7 @@ function submitPart(){
 }
 function removePart(id){ db.parts = db.parts.filter(p=>p.id!==id); save(); render(); }
 function partsListHtml(list){
-  const hl = lang==="en" ? (t("partsHead")+" ("+list.length+")") : (t("partsHead")+"（"+list.length+"）");
+  const hl = lang!=="ja" ? (t("partsHead")+" ("+list.length+")") : (t("partsHead")+"（"+list.length+"）");
   let h = '<div class="listhead">'+hl+'</div>';
   if(!list.length) return h + '<div class="empty">'+t("noParts")+'</div>';
   list.forEach(function(p){
@@ -941,7 +991,7 @@ function itemListHtml(list, isEst){
 }
 
 function vehicleListHtml(vs){
-  const hl = lang==="en" ? (t("purchasedCars")+" ("+vs.length+")") : (t("purchasedCars")+"（"+vs.length+"台）");
+  const hl = lang!=="ja" ? (t("purchasedCars")+" ("+vs.length+")") : (t("purchasedCars")+"（"+vs.length+"台）");
   let h = '<div class="listhead">'+hl+'</div>';
   if(vs.length===0){ return h + '<div class="empty">'+t("noVehicles")+'</div>'; }
   vs.forEach(v=>{
@@ -1096,7 +1146,7 @@ function itemsEditorHtml(){
 function paperHtml(){
   const isQ = doc.type==="quote";
   const { sub, tax, grand } = docCalc();
-  const dl = (lang==="ar") ? "en" : lang;
+  const dl = (lang==="ar"||lang==="ur") ? "en" : lang;
   const title = isQ ? td("pTitleQuote") : td("pTitleInvoice");
   const lead = isQ ? td("pLeadQuote") : td("pLeadInvoice");
   const no = (isQ?"Q-":"I-") + todayStr().split("-").join("");
