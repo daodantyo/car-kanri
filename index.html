@@ -640,7 +640,7 @@ function render(){
     + '</span></div></div>';
 
   html += '<div class="card tabs">'
-    + tabBtn("prayer",t("tabPrayer")) + tabBtn("schedule",t("tabSchedule")) + tabBtn("expense",t("tabExpense")) + tabBtn("estimate",t("tabEstimate")) + tabBtn("purchase",t("tabPurchase")) + tabBtn("parts",t("tabParts")) + tabBtn("market",t("tabMarket"))
+    + tabBtn("prayer",t("tabPrayer")) + tabBtn("market",t("tabMarket")) + tabBtn("schedule",t("tabSchedule")) + tabBtn("expense",t("tabExpense")) + tabBtn("estimate",t("tabEstimate")) + tabBtn("purchase",t("tabPurchase")) + tabBtn("parts",t("tabParts"))
     + '</div>';
   if(ui.tab==="prayer"){ html += prayerHtml(); html += '</div>'; document.getElementById("app").innerHTML = html; setupPrayerTimer(); return; }
 
