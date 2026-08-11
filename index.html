@@ -1213,11 +1213,19 @@ function boot(){
   let sess=null;
   try{ const s=localStorage.getItem("car-session"); if(s) sess=JSON.parse(s); }catch(_){}
   if(sess && sess.id){
+    // まず保存済みログインを信じて復元（通信待ちでログアウトしない）
+    currentUser=sess.id; isAdmin=!!sess.admin;
     document.getElementById("app").innerHTML = '<div style="padding:60px 20px;text-align:center;color:#94a3b8;">'+t("loading")+'</div>';
     fetchAccounts().then(function(){
-      const acc=accounts[sess.id];
-      if(!acc){ try{ localStorage.removeItem("car-session"); }catch(_){} showLogin(); return; }
-      currentUser=sess.id; isAdmin=!!acc.admin;
+      // 名簿がちゃんと取れて、その人が明確に削除されている場合だけログアウト
+      if(accounts && Object.keys(accounts).length>0 && !accounts[sess.id]){
+        currentUser=null; isAdmin=false; try{ localStorage.removeItem("car-session"); }catch(_){}
+        showLogin(); return;
+      }
+      if(isAdmin){ showAdmin(); return; }
+      loadUserData().then(function(){ if(typeof loadPrayerLoc==="function") loadPrayerLoc(); render(); });
+    }).catch(function(){
+      // 通信失敗でもログインは保つ
       if(isAdmin){ showAdmin(); return; }
       loadUserData().then(function(){ if(typeof loadPrayerLoc==="function") loadPrayerLoc(); render(); });
     });
