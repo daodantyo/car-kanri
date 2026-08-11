@@ -398,7 +398,7 @@ const L = {
     pFajr:"فجر", pSunrise:"طلوعِ آفتاب", pDhuhr:"ظہر", pAsr:"عصر", pMaghrib:"مغرب", pIsha:"عشاء"
   }
 };
-let lang = "ja";
+let lang = "en";
 try { const lg = localStorage.getItem("car-lang"); if(lg==="en"||lg==="ja"||lg==="ar"||lg==="ur") lang = lg; } catch(_){}
 function t(k){ return (L[lang] && L[lang][k]!=null) ? L[lang][k] : (L.ja[k]||k); }
 function td(k){ const dl=(lang==="ar"||lang==="ur")?"en":lang; return (L[dl] && L[dl][k]!=null) ? L[dl][k] : (L.en[k]||L.ja[k]||k); }
