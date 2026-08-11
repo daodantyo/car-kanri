@@ -147,6 +147,16 @@
   .photoedit { position:relative; display:inline-block; margin:4px; }
   .photoedit img { width:72px; height:72px; object-fit:cover; border-radius:8px; }
   .photoedit button { position:absolute; top:-6px; right:-6px; width:22px; height:22px; border-radius:50%; border:none; background:#ef4444; color:#fff; cursor:pointer; font-size:12px; line-height:1; }
+  .mcard { background:#fff; border-radius:16px; box-shadow:0 1px 3px rgba(0,0,0,.06); overflow:hidden; margin-bottom:10px; }
+  .mphoto { width:100%; max-height:220px; object-fit:cover; cursor:pointer; display:block; }
+  .mbody { padding:12px 14px; position:relative; }
+  .mkind { display:inline-block; font-size:11px; font-weight:700; color:#fff; background:#1e293b; border-radius:999px; padding:2px 10px; margin-bottom:6px; }
+  .mname { font-size:17px; font-weight:700; }
+  .mprice { font-size:16px; font-weight:700; color:#0369a1; margin-top:2px; }
+  .mmeta { font-size:13px; color:#64748b; margin-top:2px; }
+  .mowner { font-size:12px; color:#94a3b8; margin-top:6px; }
+  .mbody .del { position:absolute; top:10px; right:10px; }
+  .mktnote { background:#eff6ff; color:#1d4ed8; border-radius:12px; padding:10px 12px; font-size:13px; margin-bottom:12px; line-height:1.5; }
   .no-print {}
   @media print {
     body { background:#fff; }
@@ -236,7 +246,7 @@ const L = {
     confDel:"このお客さんを削除しますか？（データも消えます）", doneChange:"変更しました。",
     tabPrayer:"お祈り", prayerTitle:"お祈りの時間", chooseCity:"都市を選ぶ", useLocation:"現在地を使う",
     locating:"現在地を取得中…", locErr:"現在地を取得できませんでした。", today:"今日", nextPrayer:"次のお祈り",
-    tabSchedule:"予定", addSchedule:"＋ 予定を追加", fSchedTime:"時間", fSchedText:"用件", saveSchedule:"この予定を記録する", titleAddSchedule:"予定を追加", noSchedules:"まだ予定がありません。<br>下の「＋ 予定を追加」から入れてみてください。", phSchedText:"例：車の引き取り、車検 など", alSchedReq:"用件を入れてください。", notifyTitle:"予定のお知らせ", gcal:"📅 Googleカレンダーに追加", backupTitle:"バックアップ", exportData:"💾 データを書き出す（保存）", importData:"📂 ファイルから戻す", importDone:"データを戻しました。", importErr:"このファイルは読み込めませんでした。", confImport:"今のデータを、選んだファイルの内容で置きかえます。よろしいですか？", tabParts:"部品", addParts:"＋ 部品を追加", titleAddParts:"部品を追加", fPartName:"部品名", fPartPrice:"価格", savePart:"この部品を記録する", noParts:"まだ部品がありません。<br>下の「＋ 部品を追加」から入れてみてください。", phPartName:"例：ヘッドライト、バンパー など", alPartReq:"部品名を入れてください。", partsHead:"中古部品", photo:"写真", addPhoto:"＋ 写真を追加",
+    tabSchedule:"予定", addSchedule:"＋ 予定を追加", fSchedTime:"時間", fSchedText:"用件", saveSchedule:"この予定を記録する", titleAddSchedule:"予定を追加", noSchedules:"まだ予定がありません。<br>下の「＋ 予定を追加」から入れてみてください。", phSchedText:"例：車の引き取り、車検 など", alSchedReq:"用件を入れてください。", notifyTitle:"予定のお知らせ", gcal:"📅 Googleカレンダーに追加", backupTitle:"バックアップ", exportData:"💾 データを書き出す（保存）", importData:"📂 ファイルから戻す", importDone:"データを戻しました。", importErr:"このファイルは読み込めませんでした。", confImport:"今のデータを、選んだファイルの内容で置きかえます。よろしいですか？", tabParts:"部品", addParts:"＋ 部品を追加", titleAddParts:"部品を追加", fPartName:"部品名", fPartPrice:"価格", savePart:"この部品を記録する", noParts:"まだ部品がありません。<br>下の「＋ 部品を追加」から入れてみてください。", phPartName:"例：ヘッドライト、バンパー など", alPartReq:"部品名を入れてください。", partsHead:"中古部品", photo:"写真", addPhoto:"＋ 写真を追加", tabMarket:"マーケット", mktAdd:"＋ 出品する", mktSave:"出品する", mktTitle:"出品する", mktKind:"種類", mktCar:"車", mktPart:"部品", mktName:"名前", mktPrice:"値段", mktArea:"地域", mktContact:"連絡先（LINE・電話）", phMktName:"例：アルファード / ヘッドライト", phMktArea:"例：東京 / Dubai", phMktContact:"例：LINE ID、電話番号", mktNone:"まだ出品がありません。<br>下の「＋ 出品する」から載せてみてください。", mktAll:"出品一覧", mktShareNote:"⚠️ ここに載せた内容と写真は、他の利用者みんなに見えます。", alMktName:"名前を入れてください。", confDel2:"この出品を削除しますか？",
     remain:"あと", notifyBtn:"🔔 お知らせをON", notifyOn:"お知らせはON", locLabel:"場所",
     pFajr:"ファジュル", pSunrise:"日の出", pDhuhr:"ズフル", pAsr:"アスル", pMaghrib:"マグリブ", pIsha:"イシャー"
   },
@@ -285,7 +295,7 @@ const L = {
     confDel:"Delete this customer? (data will also be removed)", doneChange:"Done.",
     tabPrayer:"Prayer", prayerTitle:"Prayer times", chooseCity:"Choose city", useLocation:"Use my location",
     locating:"Getting location…", locErr:"Could not get location.", today:"Today", nextPrayer:"Next prayer",
-    tabSchedule:"Schedule", addSchedule:"+ Add plan", fSchedTime:"Time", fSchedText:"Task", saveSchedule:"Save plan", titleAddSchedule:"Add plan", noSchedules:"No plans yet.<br>Use the + button below to add one.", phSchedText:"e.g. pick up car, inspection", alSchedReq:"Please enter a task.", notifyTitle:"Schedule reminder", gcal:"📅 Add to Google Calendar", backupTitle:"Backup", exportData:"💾 Export data", importData:"📂 Restore from file", importDone:"Data restored.", importErr:"Could not read this file.", confImport:"This will replace current data with the selected file. Continue?", tabParts:"Parts", addParts:"+ Add part", titleAddParts:"Add part", fPartName:"Part name", fPartPrice:"Price", savePart:"Save part", noParts:"No parts yet.<br>Use the + button below to add one.", phPartName:"e.g. headlight, bumper", alPartReq:"Please enter a part name.", partsHead:"Used parts", photo:"Photos", addPhoto:"+ Add photo",
+    tabSchedule:"Schedule", addSchedule:"+ Add plan", fSchedTime:"Time", fSchedText:"Task", saveSchedule:"Save plan", titleAddSchedule:"Add plan", noSchedules:"No plans yet.<br>Use the + button below to add one.", phSchedText:"e.g. pick up car, inspection", alSchedReq:"Please enter a task.", notifyTitle:"Schedule reminder", gcal:"📅 Add to Google Calendar", backupTitle:"Backup", exportData:"💾 Export data", importData:"📂 Restore from file", importDone:"Data restored.", importErr:"Could not read this file.", confImport:"This will replace current data with the selected file. Continue?", tabParts:"Parts", addParts:"+ Add part", titleAddParts:"Add part", fPartName:"Part name", fPartPrice:"Price", savePart:"Save part", noParts:"No parts yet.<br>Use the + button below to add one.", phPartName:"e.g. headlight, bumper", alPartReq:"Please enter a part name.", partsHead:"Used parts", photo:"Photos", addPhoto:"+ Add photo", tabMarket:"Market", mktAdd:"+ Post item", mktSave:"Post", mktTitle:"Post item", mktKind:"Type", mktCar:"Car", mktPart:"Part", mktName:"Name", mktPrice:"Price", mktArea:"Area", mktContact:"Contact (LINE / phone)", phMktName:"e.g. Alphard / headlight", phMktArea:"e.g. Tokyo / Dubai", phMktContact:"e.g. LINE ID, phone number", mktNone:"No items yet.<br>Use + Post item below.", mktAll:"Listings", mktShareNote:"⚠️ Everything you post here, including photos, is visible to all users.", alMktName:"Please enter a name.", confDel2:"Delete this listing?",
     remain:"in", notifyBtn:"🔔 Turn on alerts", notifyOn:"Alerts on", locLabel:"Location",
     pFajr:"Fajr", pSunrise:"Sunrise", pDhuhr:"Dhuhr", pAsr:"Asr", pMaghrib:"Maghrib", pIsha:"Isha"
   },
@@ -334,7 +344,7 @@ const L = {
     confDel:"حذف هذا العميل؟ (سيتم حذف البيانات أيضاً)", doneChange:"تم.",
     tabPrayer:"الصلاة", prayerTitle:"مواقيت الصلاة", chooseCity:"اختر المدينة", useLocation:"استخدام موقعي",
     locating:"جاري تحديد الموقع…", locErr:"تعذر تحديد الموقع.", today:"اليوم", nextPrayer:"الصلاة القادمة",
-    tabSchedule:"المواعيد", addSchedule:"+ إضافة موعد", fSchedTime:"الوقت", fSchedText:"المهمة", saveSchedule:"حفظ الموعد", titleAddSchedule:"إضافة موعد", noSchedules:"لا مواعيد بعد.<br>استخدم زر + بالأسفل للإضافة.", phSchedText:"مثال: استلام سيارة، فحص", alSchedReq:"يرجى إدخال المهمة.", notifyTitle:"تذكير بالموعد", gcal:"📅 أضف إلى تقويم Google", backupTitle:"نسخة احتياطية", exportData:"💾 تصدير البيانات", importData:"📂 استعادة من ملف", importDone:"تمت استعادة البيانات.", importErr:"تعذّرت قراءة هذا الملف.", confImport:"سيحل هذا محل البيانات الحالية بمحتوى الملف المحدد. متابعة؟", tabParts:"قطع الغيار", addParts:"+ إضافة قطعة", titleAddParts:"إضافة قطعة", fPartName:"اسم القطعة", fPartPrice:"السعر", savePart:"حفظ القطعة", noParts:"لا قطع بعد.<br>استخدم زر + بالأسفل.", phPartName:"مثال: مصباح، مصد", alPartReq:"يرجى إدخال اسم القطعة.", partsHead:"قطع مستعملة", photo:"الصور", addPhoto:"+ إضافة صورة",
+    tabSchedule:"المواعيد", addSchedule:"+ إضافة موعد", fSchedTime:"الوقت", fSchedText:"المهمة", saveSchedule:"حفظ الموعد", titleAddSchedule:"إضافة موعد", noSchedules:"لا مواعيد بعد.<br>استخدم زر + بالأسفل للإضافة.", phSchedText:"مثال: استلام سيارة، فحص", alSchedReq:"يرجى إدخال المهمة.", notifyTitle:"تذكير بالموعد", gcal:"📅 أضف إلى تقويم Google", backupTitle:"نسخة احتياطية", exportData:"💾 تصدير البيانات", importData:"📂 استعادة من ملف", importDone:"تمت استعادة البيانات.", importErr:"تعذّرت قراءة هذا الملف.", confImport:"سيحل هذا محل البيانات الحالية بمحتوى الملف المحدد. متابعة؟", tabParts:"قطع الغيار", addParts:"+ إضافة قطعة", titleAddParts:"إضافة قطعة", fPartName:"اسم القطعة", fPartPrice:"السعر", savePart:"حفظ القطعة", noParts:"لا قطع بعد.<br>استخدم زر + بالأسفل.", phPartName:"مثال: مصباح، مصد", alPartReq:"يرجى إدخال اسم القطعة.", partsHead:"قطع مستعملة", photo:"الصور", addPhoto:"+ إضافة صورة", tabMarket:"السوق", mktAdd:"+ إضافة إعلان", mktSave:"نشر", mktTitle:"إضافة إعلان", mktKind:"النوع", mktCar:"سيارة", mktPart:"قطعة", mktName:"الاسم", mktPrice:"السعر", mktArea:"المنطقة", mktContact:"التواصل (لاين / هاتف)", phMktName:"مثال: ألفارد / مصباح", phMktArea:"مثال: طوكيو / دبي", phMktContact:"مثال: معرف لاين، رقم الهاتف", mktNone:"لا إعلانات بعد.<br>استخدم + إضافة إعلان بالأسفل.", mktAll:"الإعلانات", mktShareNote:"⚠️ كل ما تنشره هنا، بما في ذلك الصور، مرئي لجميع المستخدمين.", alMktName:"يرجى إدخال الاسم.", confDel2:"حذف هذا الإعلان؟",
     remain:"المتبقي", notifyBtn:"🔔 تفعيل التنبيه", notifyOn:"التنبيه مُفعّل", locLabel:"الموقع",
     pFajr:"الفجر", pSunrise:"الشروق", pDhuhr:"الظهر", pAsr:"العصر", pMaghrib:"المغرب", pIsha:"العشاء"
   }
@@ -579,11 +589,11 @@ function render(){
     + '</span></div></div>';
 
   html += '<div class="card tabs">'
-    + tabBtn("prayer",t("tabPrayer")) + tabBtn("schedule",t("tabSchedule")) + tabBtn("expense",t("tabExpense")) + tabBtn("estimate",t("tabEstimate")) + tabBtn("purchase",t("tabPurchase")) + tabBtn("parts",t("tabParts"))
+    + tabBtn("prayer",t("tabPrayer")) + tabBtn("schedule",t("tabSchedule")) + tabBtn("expense",t("tabExpense")) + tabBtn("estimate",t("tabEstimate")) + tabBtn("purchase",t("tabPurchase")) + tabBtn("parts",t("tabParts")) + tabBtn("market",t("tabMarket"))
     + '</div>';
   if(ui.tab==="prayer"){ html += prayerHtml(); html += '</div>'; document.getElementById("app").innerHTML = html; setupPrayerTimer(); return; }
 
-  if(!isPur && ui.tab!=="parts"){
+  if(!isPur && ui.tab!=="parts" && ui.tab!=="market"){
     html += '<div class="card monthnav">'
       + '<button onclick="moveMonth(-1)">‹</button>'
       + '<div class="monthlabel">'+label+'</div>'
@@ -596,6 +606,8 @@ function render(){
   } else if(ui.tab==="parts"){
     const pl = [...(db.parts||[])].sort((a,b)=>b.date.localeCompare(a.date));
     html += partsListHtml(pl);
+  } else if(ui.tab==="market"){
+    html += marketListHtml();
   } else if(isPur){
     const vs = [...db.vehicles].sort((a,b)=>b.date.localeCompare(a.date));
     const vt = vs.reduce((s,v)=>s+Number(v.cost||0),0);
@@ -628,6 +640,8 @@ function render(){
     html += '<button class="addbtn dark" onclick="openSForm()">'+t("addSchedule")+'</button>';
   } else if(ui.tab==="parts"){
     html += '<button class="addbtn dark" onclick="openPForm()">'+t("addParts")+'</button>';
+  } else if(ui.tab==="market"){
+    html += '<button class="addbtn dark" onclick="openMForm()">'+t("mktAdd")+'</button>';
   } else if(isPur){
     html += '<button class="addbtn dark" onclick="openVForm()">'+t("addPurchase")+'</button>';
   } else {
@@ -639,7 +653,7 @@ function render(){
 }
 
 function tabBtn(key,text){ return '<button class="tab'+(ui.tab===key?" on":"")+'" onclick="setTab(\''+key+'\')">'+text+'</button>'; }
-function setTab(t2){ ui.tab=t2; render(); }
+function setTab(t2){ ui.tab=t2; render(); if(t2==="market"){ loadMarket().then(function(){ if(ui.tab==="market") render(); }); } }
 
 // ====== 予定表 ======
 function scheduleListHtml(list){
@@ -736,16 +750,17 @@ function loadPhotos(){ photos={}; try{ const r=localStorage.getItem("car-photos-
 function savePhotos(){ try{ localStorage.setItem("car-photos-"+currentUser, JSON.stringify(photos)); }catch(e){ alert("写真の保存容量がいっぱいです。古い写真を減らしてください。"); } }
 function addPhoto(d){ const id="p"+Date.now()+Math.floor(Math.random()*10000); photos[id]=d; savePhotos(); return id; }
 function getPhoto(id){ return photos[id]||null; }
-function readImage(file, cb){
+function readImage(file, cb, max, q){
+  max=max||800; q=q||0.7;
   const reader=new FileReader();
   reader.onload=function(e){
     const img=new Image();
     img.onload=function(){
-      const max=800; let w=img.width, h=img.height;
+      let w=img.width, h=img.height;
       if(w>max){ h=Math.round(h*max/w); w=max; }
       const cv=document.createElement("canvas"); cv.width=w; cv.height=h;
       cv.getContext("2d").drawImage(img,0,0,w,h);
-      cb(cv.toDataURL("image/jpeg",0.7));
+      cb(cv.toDataURL("image/jpeg",q));
     };
     img.src=e.target.result;
   };
@@ -813,6 +828,76 @@ function partsListHtml(list){
   });
   return h;
 }
+
+// ====== 共有マーケット（みんなで見られる出品）======
+const MARKET = FIREBASE_URL + "/car-kanri/market.json";
+function marketRef(key){ return FIREBASE_URL + "/car-kanri/market/" + key + ".json"; }
+let market = [], mformKind = "car", mformPhoto = "";
+async function loadMarket(){
+  market = [];
+  try {
+    const r = await fetch(MARKET);
+    if(r.ok){ const d = await r.json(); if(d && typeof d==="object"){ market = Object.keys(d).map(k=>Object.assign({key:k}, d[k])); } }
+  } catch(e){}
+  market.sort((a,b)=>(b.ts||0)-(a.ts||0));
+}
+async function postMarket(item){ try{ await fetch(MARKET,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(item)});}catch(e){} }
+async function delMarketItem(key){ try{ await fetch(marketRef(key),{method:"DELETE"});}catch(e){} }
+
+function marketListHtml(){
+  let h = '<div class="mktnote">'+t("mktShareNote")+'</div>';
+  h += '<div class="listhead">'+t("mktAll")+'（'+market.length+'）</div>';
+  if(!market.length) return h + '<div class="empty">'+t("mktNone")+'</div>';
+  market.forEach(function(m){
+    const mine = m.owner===currentUser;
+    h += '<div class="mcard">'
+      + (m.photo? '<img class="mphoto" src="'+m.photo+'" onclick="viewPhotoSrc(this.src)">':'')
+      + '<div class="mbody">'
+      + '<div class="mkind">'+(m.kind==="part"?t("mktPart"):t("mktCar"))+'</div>'
+      + '<div class="mname">'+esc(m.name)+'</div>'
+      + (m.price? '<div class="mprice">'+yen(m.price)+'</div>':'')
+      + (m.area? '<div class="mmeta">📍 '+esc(m.area)+'</div>':'')
+      + (m.contact? '<div class="mmeta">📞 '+esc(m.contact)+'</div>':'')
+      + '<div class="mowner">'+esc(m.ownerName||"")+'</div>'
+      + (mine? '<button class="del" onclick="removeMarket(\''+m.key+'\')">🗑</button>':'')
+      + '</div></div>';
+  });
+  return h;
+}
+function viewPhotoSrc(src){ if(!src) return; openModal('<div class="overlay" onclick="closeModal(event)" style="align-items:center;"><img src="'+src+'" style="max-width:92%;max-height:88vh;border-radius:12px;"></div>'); }
+
+function mkindSwHtml(){ return '<button type="button" class="'+(mformKind==="car"?"on":"")+'" onclick="setMKind(\'car\')">'+t("mktCar")+'</button><button type="button" class="'+(mformKind==="part"?"on":"")+'" onclick="setMKind(\'part\')">'+t("mktPart")+'</button>'; }
+function setMKind(k){ mformKind=k; const el=document.getElementById("mkindsw"); if(el) el.innerHTML=mkindSwHtml(); }
+function onPickMPhoto(input){
+  const file=input.files && input.files[0]; if(!file) return;
+  readImage(file, function(d){ mformPhoto=d; const el=document.getElementById("mphotoprev"); if(el) el.innerHTML='<div class="photoedit"><img src="'+d+'"><button type="button" onclick="clearMPhoto()">✕</button></div>'; }, 600, 0.6);
+  input.value="";
+}
+function clearMPhoto(){ mformPhoto=""; const el=document.getElementById("mphotoprev"); if(el) el.innerHTML=""; }
+function openMForm(){
+  mformKind="car"; mformPhoto="";
+  const html = '<div class="overlay" onclick="closeModal(event)"><div class="sheet" onclick="event.stopPropagation()">'
+    + '<div class="sheethead"><h2>'+t("mktTitle")+'</h2><button class="xbtn" onclick="closeModal()">✕</button></div>'
+    + '<label>'+t("mktKind")+'</label><div class="doctypesw" id="mkindsw">'+mkindSwHtml()+'</div>'
+    + '<label>'+t("mktName")+'</label><input type="text" id="m_name" placeholder="'+esc(t("phMktName"))+'">'
+    + '<label>'+t("mktPrice")+'</label><div class="yeninput"><span>¥</span><input type="number" inputmode="numeric" id="m_price" placeholder="0"></div>'
+    + '<label>'+t("mktArea")+'</label><input type="text" id="m_area" placeholder="'+esc(t("phMktArea"))+'">'
+    + '<label>'+t("mktContact")+'</label><input type="text" id="m_contact" placeholder="'+esc(t("phMktContact"))+'">'
+    + '<label>'+t("photo")+'</label><div id="mphotoprev"></div>'
+    + '<label class="addrow" style="cursor:pointer;display:block;text-align:center;">'+t("addPhoto")+'<input type="file" accept="image/*" style="display:none;" onchange="onPickMPhoto(this)"></label>'
+    + '<button class="submit dark" onclick="submitMarket()">'+t("mktSave")+'</button>'
+    + '</div></div>';
+  openModal(html);
+}
+async function submitMarket(){
+  const name=(document.getElementById("m_name").value||"").trim();
+  if(!name){ alert(t("alMktName")); return; }
+  const item = { owner:currentUser, ownerName:(accounts[currentUser]&&accounts[currentUser].name)||currentUser, kind:mformKind, name:name, price:Number(document.getElementById("m_price").value)||0, area:(document.getElementById("m_area").value||"").trim(), contact:(document.getElementById("m_contact").value||"").trim(), photo:mformPhoto, ts:Date.now() };
+  await postMarket(item);
+  closeModal();
+  ui.tab="market"; await loadMarket(); render();
+}
+async function removeMarket(key){ if(!confirm(t("confDel2"))) return; await delMarketItem(key); await loadMarket(); render(); }
 
 // ====== お知らせ（予定の時間に通知） ======
 let notifiedIds = {};
