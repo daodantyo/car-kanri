@@ -157,6 +157,7 @@
   .mowner { font-size:12px; color:#94a3b8; margin-top:6px; }
   .mbody .del { position:absolute; top:10px; right:10px; }
   .mktnote { background:#eff6ff; color:#1d4ed8; border-radius:12px; padding:10px 12px; font-size:13px; margin-bottom:12px; line-height:1.5; }
+  .itemrow .mcat { width:auto; min-width:66px; max-width:92px; margin:0; padding:6px 8px; font-size:14px; }
   .no-print {}
   @media print {
     body { background:#fff; }
@@ -189,6 +190,7 @@ const CATS = [
   { key:"輸送費", ja:"輸送費", en:"Shipping", ar:"شحن", ur:"ترسیل", emoji:"🚚", cls:"violet" },
 ];
 const catOf = k => CATS.find(c=>c.key===k) || CATS[0];
+function catColor(nm){ const p=["sky","amber","emerald","violet"]; nm=String(nm||""); let h=0; for(let i=0;i<nm.length;i++){h=(h+nm.charCodeAt(i))%4;} return p[h]; }
 const catLabel = c => lang==="ur" ? c.ur : (lang==="ar" ? c.ar : (lang==="en" ? c.en : c.ja));
 const catDoc = c => lang==="ja" ? c.ja : c.en;
 const yen = n => "¥" + Number(n||0).toLocaleString("ja-JP");
@@ -216,7 +218,7 @@ const L = {
     fPurDate:"仕入れ日", fModel:"車種", fGrade:"グレード", fMileage:"走行距離（km）", fCost:"仕入れ金額",
     saveExpense:"この内容で記録する", saveEstimate:"この見積を記録する", savePurchase:"この仕入れを記録する",
     titleAddExpense:"経費を追加", titleAddEstimate:"見積を追加", titleAddPurchase:"仕入れを追加",
-    phMemo:"例：タイヤ交換、オイル など", phModel:"例：ハイエース", phGrade:"例：スーパーGL",
+    phMemo:"例：タイヤ交換、オイル など", phCat:"例：保険、駐車場、部品 など", alCat:"費目を入れてください。", phModel:"例：ハイエース", phGrade:"例：スーパーGL",
     phMileage:"例：82000", phMemoCar:"例：色シルバー、修復歴なし など",
     docTitle:"書類を作る", quote:"見積書", invoice:"請求書",
     to:"宛先（相手の名前）", phTo:"例：山田自動車 様",
@@ -265,7 +267,7 @@ const L = {
     fPurDate:"Purchase date", fModel:"Model", fGrade:"Grade", fMileage:"Mileage (km)", fCost:"Cost",
     saveExpense:"Save", saveEstimate:"Save estimate", savePurchase:"Save purchase",
     titleAddExpense:"Add expense", titleAddEstimate:"Add estimate", titleAddPurchase:"Add purchase",
-    phMemo:"e.g. tire change, oil", phModel:"e.g. Hiace", phGrade:"e.g. Super GL",
+    phMemo:"e.g. tire change, oil", phCat:"e.g. insurance, parking, parts", alCat:"Please enter a category.", phModel:"e.g. Hiace", phGrade:"e.g. Super GL",
     phMileage:"e.g. 82000", phMemoCar:"e.g. silver, no accident history",
     docTitle:"Create document", quote:"Quotation", invoice:"Invoice",
     to:"To (customer name)", phTo:"e.g. Yamada Motors",
@@ -314,7 +316,7 @@ const L = {
     fPurDate:"تاريخ الشراء", fModel:"الطراز", fGrade:"الفئة", fMileage:"المسافة (كم)", fCost:"التكلفة",
     saveExpense:"حفظ", saveEstimate:"حفظ عرض السعر", savePurchase:"حفظ السيارة",
     titleAddExpense:"إضافة مصروف", titleAddEstimate:"إضافة عرض سعر", titleAddPurchase:"إضافة سيارة",
-    phMemo:"مثال: تغيير الإطارات", phModel:"مثال: Hiace", phGrade:"مثال: Super GL",
+    phMemo:"مثال: تغيير الإطارات", phCat:"مثال: تأمين، موقف", alCat:"يرجى إدخال الفئة.", phModel:"مثال: Hiace", phGrade:"مثال: Super GL",
     phMileage:"مثال: 82000", phMemoCar:"مثال: فضي، بدون حوادث",
     docTitle:"إنشاء مستند", quote:"عرض سعر", invoice:"فاتورة",
     to:"إلى (اسم العميل)", phTo:"مثال: Yamada Motors",
@@ -363,7 +365,7 @@ const L = {
     fPurDate:"خریداری کی تاریخ", fModel:"ماڈل", fGrade:"گریڈ", fMileage:"مائلیج (کلومیٹر)", fCost:"لاگت",
     saveExpense:"محفوظ کریں", saveEstimate:"تخمینہ محفوظ کریں", savePurchase:"گاڑی محفوظ کریں",
     titleAddExpense:"اخراجات شامل کریں", titleAddEstimate:"تخمینہ شامل کریں", titleAddPurchase:"گاڑی شامل کریں",
-    phMemo:"مثلاً: ٹائر کی تبدیلی", phModel:"مثلاً: Hiace", phGrade:"مثلاً: Super GL",
+    phMemo:"مثلاً: ٹائر کی تبدیلی", phCat:"مثلاً: انشورنس، پارکنگ", alCat:"براہ کرم قسم درج کریں۔", phModel:"مثلاً: Hiace", phGrade:"مثلاً: Super GL",
     phMileage:"مثلاً: 82000", phMemoCar:"مثلاً: چاندی رنگ، بغیر حادثہ",
     docTitle:"دستاویز بنائیں", quote:"کوٹیشن", invoice:"انوائس",
     to:"بنام (گاہک کا نام)", phTo:"مثلاً: Yamada Motors",
@@ -673,9 +675,10 @@ function render(){
     html += '<div class="total '+(isEst?"indigo":"dark")+'"><div class="l">'+tl+'</div><div class="n">'+yen(total)+'</div></div>';
     if(isEst){ html += '<button class="docbtn" onclick="openDoc()">'+t("makeDoc")+'</button>'; }
     html += '<div class="cats">';
-    CATS.forEach(c=>{
-      const sum = list.filter(e=>e.category===c.key).reduce((s,e)=>s+Number(e.amount),0);
-      html += '<div class="catcard '+c.cls+'"><div class="l">'+c.emoji+' '+catLabel(c)+'</div><div class="n">'+yen(sum)+'</div></div>';
+    const _cs=[]; list.forEach(e=>{ if(e.category && _cs.indexOf(e.category)<0) _cs.push(e.category); });
+    _cs.forEach(function(cat){
+      const sum = list.filter(e=>e.category===cat).reduce((s,e)=>s+Number(e.amount),0);
+      html += '<div class="catcard '+catColor(cat)+'"><div class="l">🏷️ '+esc(cat)+'</div><div class="n">'+yen(sum)+'</div></div>';
     });
     html += '</div>';
     const hw = isEst ? t("estWord") : t("records");
@@ -975,10 +978,10 @@ function itemListHtml(list, isEst){
   if(list.length===0){ return '<div class="empty">'+(isEst?t("noEstimates"):t("noRecords"))+'</div>'; }
   let h="";
   list.forEach(e=>{
-    const c = catOf(e.category);
+    const _cl = catColor(e.category);
     h += '<div class="row"><div class="rowtop">'
-      + '<div class="dot '+c.cls+'">'+c.emoji+'</div>'
-      + '<div class="rowmid"><div><span class="chip '+c.cls+'">'+esc(catLabel(c))+'</span>'
+      + '<div class="dot '+_cl+'">🏷️</div>'
+      + '<div class="rowmid"><div><span class="chip '+_cl+'">'+esc(e.category)+'</span>'
       + '<span class="date">'+mmdd(e.date)+'</span></div>'
       + (e.memo? '<div class="memo">'+esc(e.memo)+'</div>' : '')
       + '</div>'
@@ -1030,7 +1033,7 @@ function openForm(){
   const html = '<div class="overlay" onclick="closeModal(event)"><div class="sheet" onclick="event.stopPropagation()">'
     + '<div class="sheethead"><h2>'+(isEst?t("titleAddEstimate"):t("titleAddExpense"))+'</h2><button class="xbtn" onclick="closeModal()">✕</button></div>'
     + '<label>'+(isEst?t("fSched"):t("fDate"))+'</label><input type="date" id="f_date" value="'+todayStr()+'">'
-    + '<label>'+t("fCategory")+'</label><div class="catgrid" id="f_cats">'+catPickHtml()+'</div>'
+    + '<label>'+t("fCategory")+'</label><input type="text" id="f_cat" placeholder="'+esc(t("phCat"))+'">'
     + '<label>'+t("fAmount")+'</label><div class="yeninput"><span>¥</span><input type="number" inputmode="numeric" id="f_amount" placeholder="0"></div>'
     + '<label>'+t("fMemo")+'</label><input type="text" id="f_memo" placeholder="'+esc(t("phMemo"))+'">'
     + '<button class="submit '+(isEst?"indigo":"dark")+'" onclick="submitItem()">'+(isEst?t("saveEstimate"):t("saveExpense"))+'</button>'
@@ -1044,7 +1047,9 @@ function pickCat(k){ formCat=k; document.getElementById("f_cats").innerHTML = ca
 function submitItem(){
   const amount = Number(document.getElementById("f_amount").value);
   if(!amount || amount<=0){ alert(t("alAmount")); return; }
-  const item = { id:Date.now(), date:document.getElementById("f_date").value, category:formCat, amount:amount, memo:document.getElementById("f_memo").value.trim() };
+  const cat = (document.getElementById("f_cat").value||"").trim();
+  if(!cat){ alert(t("alCat")); return; }
+  const item = { id:Date.now(), date:document.getElementById("f_date").value, category:cat, amount:amount, memo:document.getElementById("f_memo").value.trim() };
   if(ui.tab==="estimate") db.estimates.push(item); else db.expenses.push(item);
   save(); closeModal(); render();
 }
@@ -1088,7 +1093,7 @@ function openDoc(){
   const list = curList();
   doc = {
     type:"quote", issuer:{ name:"", address:"", tel:"", bank:"" }, to:"", note:"", due:"",
-    items: list.length ? list.map(e=>({ category:e.category, desc:e.memo||catLabel(catOf(e.category)), qty:1, price:Number(e.amount) }))
+    items: list.length ? list.map(e=>({ category:e.category, desc:e.memo||e.category, qty:1, price:Number(e.amount) }))
                        : [{ category:"部品", desc:"", qty:1, price:0 }]
   };
   renderDoc();
@@ -1131,9 +1136,8 @@ function renderDoc(){
 
 function itemsEditorHtml(){
   return doc.items.map((it,i)=>{
-    const opts = CATS.map(c=>'<option value="'+c.key+'"'+(it.category===c.key?" selected":"")+'>'+catLabel(c)+'</option>').join("");
     return '<div class="itemrow">'
-      + '<div class="r1"><select onchange="docItem('+i+',\'category\',this.value)">'+opts+'</select>'
+      + '<div class="r1"><input class="mcat" type="text" value="'+esc(it.category)+'" placeholder="'+esc(t("fCategory"))+'" oninput="docItem('+i+',\'category\',this.value)">'
       + '<input class="desc" type="text" value="'+esc(it.desc)+'" placeholder="'+esc(t("phDesc"))+'" oninput="docItem('+i+',\'desc\',this.value)">'
       + '<button class="del" onclick="delDocRow('+i+')">🗑</button></div>'
       + '<div class="r2"><span class="lbl">'+t("qty")+'</span>'
@@ -1152,7 +1156,7 @@ function paperHtml(){
   const lead = isQ ? td("pLeadQuote") : td("pLeadInvoice");
   const no = (isQ?"Q-":"I-") + todayStr().split("-").join("");
   const toText = (dl==="ja") ? ((esc(doc.to)||"（宛先）")+' <span style="font-size:14px;font-weight:400;">'+td("onchu")+'</span>') : ("To: "+(esc(doc.to)||"(customer)"));
-  let rows = doc.items.map(it=>{ const c=catOf(it.category); return '<tr><td>'+esc(catDoc(c))+'</td><td>'+esc(it.desc)+'</td>'
+  let rows = doc.items.map(it=>{ return '<tr><td>'+esc(it.category)+'</td><td>'+esc(it.desc)+'</td>'
     + '<td class="ta-r">'+esc(it.qty)+'</td><td class="ta-r">'+yen(it.price)+'</td>'
     + '<td class="ta-r">'+yen(Number(it.qty||0)*Number(it.price||0))+'</td></tr>'; }).join("");
   let pay = "";
