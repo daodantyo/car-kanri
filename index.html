@@ -160,6 +160,8 @@
   .itemrow .mcat { width:auto; min-width:66px; max-width:92px; margin:0; padding:6px 8px; font-size:14px; }
   .gsigninbtn { width:100%; display:flex; align-items:center; justify-content:center; gap:10px; border:1px solid #dadce0; background:#fff; border-radius:12px; padding:14px; font-size:16px; font-weight:600; color:#3c4043; cursor:pointer; font-family:inherit; }
   .gsigninbtn:hover { background:#f8f9fa; }
+  .mktfilter { display:flex; gap:8px; margin-bottom:12px; }
+  .mktfilter select { flex:1; margin:0; padding:10px 12px; font-size:14px; border-radius:12px; }
   .no-print {}
   @media print {
     body { background:#fff; }
@@ -255,7 +257,7 @@ const L = {
     confDel:"このお客さんを削除しますか？（データも消えます）", doneChange:"変更しました。",
     tabPrayer:"お祈り", prayerTitle:"お祈りの時間", chooseCity:"都市を選ぶ", useLocation:"現在地を使う",
     locating:"現在地を取得中…", locErr:"現在地を取得できませんでした。", today:"今日", nextPrayer:"次のお祈り",
-    tabSchedule:"予定", addSchedule:"＋ 予定を追加", fSchedTime:"時間", fSchedText:"用件", saveSchedule:"この予定を記録する", titleAddSchedule:"予定を追加", noSchedules:"まだ予定がありません。<br>下の「＋ 予定を追加」から入れてみてください。", phSchedText:"例：車の引き取り、車検 など", alSchedReq:"用件を入れてください。", notifyTitle:"予定のお知らせ", gcal:"📅 Googleカレンダーに追加", backupTitle:"バックアップ", exportData:"💾 データを書き出す（保存）", importData:"📂 ファイルから戻す", importDone:"データを戻しました。", importErr:"このファイルは読み込めませんでした。", confImport:"今のデータを、選んだファイルの内容で置きかえます。よろしいですか？", tabParts:"部品", addParts:"＋ 部品を追加", titleAddParts:"部品を追加", fPartName:"部品名", fPartPrice:"価格", savePart:"この部品を記録する", noParts:"まだ部品がありません。<br>下の「＋ 部品を追加」から入れてみてください。", phPartName:"例：ヘッドライト、バンパー など", alPartReq:"部品名を入れてください。", partsHead:"中古部品", photo:"写真", addPhoto:"＋ 写真を追加", tabMarket:"マーケット", mktAdd:"＋ 出品する", mktSave:"出品する", mktTitle:"出品する", mktKind:"種類", mktCar:"車", mktPart:"部品", mktName:"名前", mktPrice:"値段", mktArea:"地域", mktContact:"連絡先（LINE・電話）", phMktName:"例：アルファード / ヘッドライト", phMktArea:"例：東京 / Dubai", phMktContact:"例：LINE ID、電話番号", mktNone:"まだ出品がありません。<br>下の「＋ 出品する」から載せてみてください。", mktAll:"出品一覧", mktShareNote:"⚠️ ここに載せた内容と写真は、他の利用者みんなに見えます。", alMktName:"名前を入れてください。", confDel2:"この出品を削除しますか？",
+    tabSchedule:"予定", addSchedule:"＋ 予定を追加", fSchedTime:"時間", fSchedText:"用件", saveSchedule:"この予定を記録する", titleAddSchedule:"予定を追加", noSchedules:"まだ予定がありません。<br>下の「＋ 予定を追加」から入れてみてください。", phSchedText:"例：車の引き取り、車検 など", alSchedReq:"用件を入れてください。", notifyTitle:"予定のお知らせ", gcal:"📅 Googleカレンダーに追加", backupTitle:"バックアップ", exportData:"💾 データを書き出す（保存）", importData:"📂 ファイルから戻す", importDone:"データを戻しました。", importErr:"このファイルは読み込めませんでした。", confImport:"今のデータを、選んだファイルの内容で置きかえます。よろしいですか？", tabParts:"部品", addParts:"＋ 部品を追加", titleAddParts:"部品を追加", fPartName:"部品名", fPartPrice:"価格", savePart:"この部品を記録する", noParts:"まだ部品がありません。<br>下の「＋ 部品を追加」から入れてみてください。", phPartName:"例：ヘッドライト、バンパー など", alPartReq:"部品名を入れてください。", partsHead:"中古部品", photo:"写真", addPhoto:"＋ 写真を追加", tabMarket:"マーケット", mktAdd:"＋ 出品する", mktSave:"出品する", mktTitle:"出品する", mktKind:"種類", mktCar:"車", mktPart:"部品", mktName:"名前", mktPrice:"値段", mktArea:"地域", mktContact:"連絡先（LINE・電話）", phMktName:"例：アルファード / ヘッドライト", phMktArea:"例：東京 / Dubai", phMktContact:"例：LINE ID、電話番号", mktNone:"まだ出品がありません。<br>下の「＋ 出品する」から載せてみてください。", mktAll:"出品一覧", areaAll:"すべての地域", kindAll:"すべての種類", mktShareNote:"⚠️ ここに載せた内容と写真は、他の利用者みんなに見えます。", alMktName:"名前を入れてください。", confDel2:"この出品を削除しますか？",
     remain:"あと", notifyBtn:"🔔 お知らせをON", notifyOn:"お知らせはON", locLabel:"場所",
     pFajr:"ファジュル", pSunrise:"日の出", pDhuhr:"ズフル", pAsr:"アスル", pMaghrib:"マグリブ", pIsha:"イシャー"
   },
@@ -304,7 +306,7 @@ const L = {
     confDel:"Delete this customer? (data will also be removed)", doneChange:"Done.",
     tabPrayer:"Prayer", prayerTitle:"Prayer times", chooseCity:"Choose city", useLocation:"Use my location",
     locating:"Getting location…", locErr:"Could not get location.", today:"Today", nextPrayer:"Next prayer",
-    tabSchedule:"Schedule", addSchedule:"+ Add plan", fSchedTime:"Time", fSchedText:"Task", saveSchedule:"Save plan", titleAddSchedule:"Add plan", noSchedules:"No plans yet.<br>Use the + button below to add one.", phSchedText:"e.g. pick up car, inspection", alSchedReq:"Please enter a task.", notifyTitle:"Schedule reminder", gcal:"📅 Add to Google Calendar", backupTitle:"Backup", exportData:"💾 Export data", importData:"📂 Restore from file", importDone:"Data restored.", importErr:"Could not read this file.", confImport:"This will replace current data with the selected file. Continue?", tabParts:"Parts", addParts:"+ Add part", titleAddParts:"Add part", fPartName:"Part name", fPartPrice:"Price", savePart:"Save part", noParts:"No parts yet.<br>Use the + button below to add one.", phPartName:"e.g. headlight, bumper", alPartReq:"Please enter a part name.", partsHead:"Used parts", photo:"Photos", addPhoto:"+ Add photo", tabMarket:"Market", mktAdd:"+ Post item", mktSave:"Post", mktTitle:"Post item", mktKind:"Type", mktCar:"Car", mktPart:"Part", mktName:"Name", mktPrice:"Price", mktArea:"Area", mktContact:"Contact (LINE / phone)", phMktName:"e.g. Alphard / headlight", phMktArea:"e.g. Tokyo / Dubai", phMktContact:"e.g. LINE ID, phone number", mktNone:"No items yet.<br>Use + Post item below.", mktAll:"Listings", mktShareNote:"⚠️ Everything you post here, including photos, is visible to all users.", alMktName:"Please enter a name.", confDel2:"Delete this listing?",
+    tabSchedule:"Schedule", addSchedule:"+ Add plan", fSchedTime:"Time", fSchedText:"Task", saveSchedule:"Save plan", titleAddSchedule:"Add plan", noSchedules:"No plans yet.<br>Use the + button below to add one.", phSchedText:"e.g. pick up car, inspection", alSchedReq:"Please enter a task.", notifyTitle:"Schedule reminder", gcal:"📅 Add to Google Calendar", backupTitle:"Backup", exportData:"💾 Export data", importData:"📂 Restore from file", importDone:"Data restored.", importErr:"Could not read this file.", confImport:"This will replace current data with the selected file. Continue?", tabParts:"Parts", addParts:"+ Add part", titleAddParts:"Add part", fPartName:"Part name", fPartPrice:"Price", savePart:"Save part", noParts:"No parts yet.<br>Use the + button below to add one.", phPartName:"e.g. headlight, bumper", alPartReq:"Please enter a part name.", partsHead:"Used parts", photo:"Photos", addPhoto:"+ Add photo", tabMarket:"Market", mktAdd:"+ Post item", mktSave:"Post", mktTitle:"Post item", mktKind:"Type", mktCar:"Car", mktPart:"Part", mktName:"Name", mktPrice:"Price", mktArea:"Area", mktContact:"Contact (LINE / phone)", phMktName:"e.g. Alphard / headlight", phMktArea:"e.g. Tokyo / Dubai", phMktContact:"e.g. LINE ID, phone number", mktNone:"No items yet.<br>Use + Post item below.", mktAll:"Listings", areaAll:"All areas", kindAll:"All types", mktShareNote:"⚠️ Everything you post here, including photos, is visible to all users.", alMktName:"Please enter a name.", confDel2:"Delete this listing?",
     remain:"in", notifyBtn:"🔔 Turn on alerts", notifyOn:"Alerts on", locLabel:"Location",
     pFajr:"Fajr", pSunrise:"Sunrise", pDhuhr:"Dhuhr", pAsr:"Asr", pMaghrib:"Maghrib", pIsha:"Isha"
   },
@@ -353,7 +355,7 @@ const L = {
     confDel:"حذف هذا العميل؟ (سيتم حذف البيانات أيضاً)", doneChange:"تم.",
     tabPrayer:"الصلاة", prayerTitle:"مواقيت الصلاة", chooseCity:"اختر المدينة", useLocation:"استخدام موقعي",
     locating:"جاري تحديد الموقع…", locErr:"تعذر تحديد الموقع.", today:"اليوم", nextPrayer:"الصلاة القادمة",
-    tabSchedule:"المواعيد", addSchedule:"+ إضافة موعد", fSchedTime:"الوقت", fSchedText:"المهمة", saveSchedule:"حفظ الموعد", titleAddSchedule:"إضافة موعد", noSchedules:"لا مواعيد بعد.<br>استخدم زر + بالأسفل للإضافة.", phSchedText:"مثال: استلام سيارة، فحص", alSchedReq:"يرجى إدخال المهمة.", notifyTitle:"تذكير بالموعد", gcal:"📅 أضف إلى تقويم Google", backupTitle:"نسخة احتياطية", exportData:"💾 تصدير البيانات", importData:"📂 استعادة من ملف", importDone:"تمت استعادة البيانات.", importErr:"تعذّرت قراءة هذا الملف.", confImport:"سيحل هذا محل البيانات الحالية بمحتوى الملف المحدد. متابعة؟", tabParts:"قطع الغيار", addParts:"+ إضافة قطعة", titleAddParts:"إضافة قطعة", fPartName:"اسم القطعة", fPartPrice:"السعر", savePart:"حفظ القطعة", noParts:"لا قطع بعد.<br>استخدم زر + بالأسفل.", phPartName:"مثال: مصباح، مصد", alPartReq:"يرجى إدخال اسم القطعة.", partsHead:"قطع مستعملة", photo:"الصور", addPhoto:"+ إضافة صورة", tabMarket:"السوق", mktAdd:"+ إضافة إعلان", mktSave:"نشر", mktTitle:"إضافة إعلان", mktKind:"النوع", mktCar:"سيارة", mktPart:"قطعة", mktName:"الاسم", mktPrice:"السعر", mktArea:"المنطقة", mktContact:"التواصل (لاين / هاتف)", phMktName:"مثال: ألفارد / مصباح", phMktArea:"مثال: طوكيو / دبي", phMktContact:"مثال: معرف لاين، رقم الهاتف", mktNone:"لا إعلانات بعد.<br>استخدم + إضافة إعلان بالأسفل.", mktAll:"الإعلانات", mktShareNote:"⚠️ كل ما تنشره هنا، بما في ذلك الصور، مرئي لجميع المستخدمين.", alMktName:"يرجى إدخال الاسم.", confDel2:"حذف هذا الإعلان؟",
+    tabSchedule:"المواعيد", addSchedule:"+ إضافة موعد", fSchedTime:"الوقت", fSchedText:"المهمة", saveSchedule:"حفظ الموعد", titleAddSchedule:"إضافة موعد", noSchedules:"لا مواعيد بعد.<br>استخدم زر + بالأسفل للإضافة.", phSchedText:"مثال: استلام سيارة، فحص", alSchedReq:"يرجى إدخال المهمة.", notifyTitle:"تذكير بالموعد", gcal:"📅 أضف إلى تقويم Google", backupTitle:"نسخة احتياطية", exportData:"💾 تصدير البيانات", importData:"📂 استعادة من ملف", importDone:"تمت استعادة البيانات.", importErr:"تعذّرت قراءة هذا الملف.", confImport:"سيحل هذا محل البيانات الحالية بمحتوى الملف المحدد. متابعة؟", tabParts:"قطع الغيار", addParts:"+ إضافة قطعة", titleAddParts:"إضافة قطعة", fPartName:"اسم القطعة", fPartPrice:"السعر", savePart:"حفظ القطعة", noParts:"لا قطع بعد.<br>استخدم زر + بالأسفل.", phPartName:"مثال: مصباح، مصد", alPartReq:"يرجى إدخال اسم القطعة.", partsHead:"قطع مستعملة", photo:"الصور", addPhoto:"+ إضافة صورة", tabMarket:"السوق", mktAdd:"+ إضافة إعلان", mktSave:"نشر", mktTitle:"إضافة إعلان", mktKind:"النوع", mktCar:"سيارة", mktPart:"قطعة", mktName:"الاسم", mktPrice:"السعر", mktArea:"المنطقة", mktContact:"التواصل (لاين / هاتف)", phMktName:"مثال: ألفارد / مصباح", phMktArea:"مثال: طوكيو / دبي", phMktContact:"مثال: معرف لاين، رقم الهاتف", mktNone:"لا إعلانات بعد.<br>استخدم + إضافة إعلان بالأسفل.", mktAll:"الإعلانات", areaAll:"كل المناطق", kindAll:"كل الأنواع", mktShareNote:"⚠️ كل ما تنشره هنا، بما في ذلك الصور، مرئي لجميع المستخدمين.", alMktName:"يرجى إدخال الاسم.", confDel2:"حذف هذا الإعلان؟",
     remain:"المتبقي", notifyBtn:"🔔 تفعيل التنبيه", notifyOn:"التنبيه مُفعّل", locLabel:"الموقع",
     pFajr:"الفجر", pSunrise:"الشروق", pDhuhr:"الظهر", pAsr:"العصر", pMaghrib:"المغرب", pIsha:"العشاء"
   },
@@ -402,7 +404,7 @@ const L = {
     confDel:"اس گاہک کو حذف کریں؟ (ڈیٹا بھی حذف ہو جائے گا)", doneChange:"ہو گیا۔",
     tabPrayer:"نماز", prayerTitle:"نماز کے اوقات", chooseCity:"شہر منتخب کریں", useLocation:"میرا مقام استعمال کریں",
     locating:"مقام حاصل کیا جا رہا ہے…", locErr:"مقام حاصل نہیں ہو سکا۔", today:"آج", nextPrayer:"اگلی نماز",
-    tabSchedule:"شیڈول", addSchedule:"+ منصوبہ شامل کریں", fSchedTime:"وقت", fSchedText:"کام", saveSchedule:"منصوبہ محفوظ کریں", titleAddSchedule:"منصوبہ شامل کریں", noSchedules:"ابھی کوئی منصوبہ نہیں۔<br>نیچے + بٹن سے شامل کریں۔", phSchedText:"مثلاً: گاڑی لینا، معائنہ", alSchedReq:"براہ کرم کام درج کریں۔", notifyTitle:"شیڈول یاد دہانی", gcal:"📅 گوگل کیلنڈر میں شامل کریں", backupTitle:"بیک اپ", exportData:"💾 ڈیٹا برآمد کریں", importData:"📂 فائل سے بحال کریں", importDone:"ڈیٹا بحال ہو گیا۔", importErr:"یہ فائل نہیں پڑھی جا سکی۔", confImport:"یہ موجودہ ڈیٹا کو منتخب فائل سے بدل دے گا۔ جاری رکھیں؟", tabParts:"پرزے", addParts:"+ پرزہ شامل کریں", titleAddParts:"پرزہ شامل کریں", fPartName:"پرزے کا نام", fPartPrice:"قیمت", savePart:"پرزہ محفوظ کریں", noParts:"ابھی کوئی پرزہ نہیں۔<br>نیچے + بٹن سے شامل کریں۔", phPartName:"مثلاً: ہیڈلائٹ، بمپر", alPartReq:"براہ کرم پرزے کا نام درج کریں۔", partsHead:"استعمال شدہ پرزے", photo:"تصاویر", addPhoto:"+ تصویر شامل کریں", tabMarket:"مارکیٹ", mktAdd:"+ اشتہار دیں", mktSave:"شائع کریں", mktTitle:"اشتہار دیں", mktKind:"قسم", mktCar:"گاڑی", mktPart:"پرزہ", mktName:"نام", mktPrice:"قیمت", mktArea:"علاقہ", mktContact:"رابطہ (لائن / فون)", phMktName:"مثلاً: الفارڈ / ہیڈلائٹ", phMktArea:"مثلاً: ٹوکیو / دبئی", phMktContact:"مثلاً: لائن آئی ڈی، فون نمبر", mktNone:"ابھی کوئی اشتہار نہیں۔<br>نیچے + اشتہار دیں استعمال کریں۔", mktAll:"اشتہارات", mktShareNote:"⚠️ یہاں آپ جو کچھ شائع کرتے ہیں، بشمول تصاویر، تمام صارفین کو نظر آتا ہے۔", alMktName:"براہ کرم نام درج کریں۔", confDel2:"یہ اشتہار حذف کریں؟",
+    tabSchedule:"شیڈول", addSchedule:"+ منصوبہ شامل کریں", fSchedTime:"وقت", fSchedText:"کام", saveSchedule:"منصوبہ محفوظ کریں", titleAddSchedule:"منصوبہ شامل کریں", noSchedules:"ابھی کوئی منصوبہ نہیں۔<br>نیچے + بٹن سے شامل کریں۔", phSchedText:"مثلاً: گاڑی لینا، معائنہ", alSchedReq:"براہ کرم کام درج کریں۔", notifyTitle:"شیڈول یاد دہانی", gcal:"📅 گوگل کیلنڈر میں شامل کریں", backupTitle:"بیک اپ", exportData:"💾 ڈیٹا برآمد کریں", importData:"📂 فائل سے بحال کریں", importDone:"ڈیٹا بحال ہو گیا۔", importErr:"یہ فائل نہیں پڑھی جا سکی۔", confImport:"یہ موجودہ ڈیٹا کو منتخب فائل سے بدل دے گا۔ جاری رکھیں؟", tabParts:"پرزے", addParts:"+ پرزہ شامل کریں", titleAddParts:"پرزہ شامل کریں", fPartName:"پرزے کا نام", fPartPrice:"قیمت", savePart:"پرزہ محفوظ کریں", noParts:"ابھی کوئی پرزہ نہیں۔<br>نیچے + بٹن سے شامل کریں۔", phPartName:"مثلاً: ہیڈلائٹ، بمپر", alPartReq:"براہ کرم پرزے کا نام درج کریں۔", partsHead:"استعمال شدہ پرزے", photo:"تصاویر", addPhoto:"+ تصویر شامل کریں", tabMarket:"مارکیٹ", mktAdd:"+ اشتہار دیں", mktSave:"شائع کریں", mktTitle:"اشتہار دیں", mktKind:"قسم", mktCar:"گاڑی", mktPart:"پرزہ", mktName:"نام", mktPrice:"قیمت", mktArea:"علاقہ", mktContact:"رابطہ (لائن / فون)", phMktName:"مثلاً: الفارڈ / ہیڈلائٹ", phMktArea:"مثلاً: ٹوکیو / دبئی", phMktContact:"مثلاً: لائن آئی ڈی، فون نمبر", mktNone:"ابھی کوئی اشتہار نہیں۔<br>نیچے + اشتہار دیں استعمال کریں۔", mktAll:"اشتہارات", areaAll:"تمام علاقے", kindAll:"تمام اقسام", mktShareNote:"⚠️ یہاں آپ جو کچھ شائع کرتے ہیں، بشمول تصاویر، تمام صارفین کو نظر آتا ہے۔", alMktName:"براہ کرم نام درج کریں۔", confDel2:"یہ اشتہار حذف کریں؟",
     remain:"باقی", notifyBtn:"🔔 الرٹ آن کریں", notifyOn:"الرٹ آن", locLabel:"مقام",
     pFajr:"فجر", pSunrise:"طلوعِ آفتاب", pDhuhr:"ظہر", pAsr:"عصر", pMaghrib:"مغرب", pIsha:"عشاء"
   }
@@ -892,6 +894,16 @@ function partsListHtml(list){
 }
 
 // ====== 共有マーケット（みんなで見られる出品）======
+const JP_AREAS = [
+  { g:"北海道・東北", ja:["北海道","青森県","岩手県","宮城県","秋田県","山形県","福島県"] },
+  { g:"関東", ja:["茨城県","栃木県","群馬県","埼玉県","千葉県","東京都","神奈川県"] },
+  { g:"中部", ja:["新潟県","富山県","石川県","福井県","山梨県","長野県","岐阜県","静岡県","愛知県"] },
+  { g:"関西", ja:["三重県","滋賀県","京都府","大阪府","兵庫県","奈良県","和歌山県"] },
+  { g:"中国", ja:["鳥取県","島根県","岡山県","広島県","山口県"] },
+  { g:"四国", ja:["徳島県","香川県","愛媛県","高知県"] },
+  { g:"九州・沖縄", ja:["福岡県","佐賀県","長崎県","熊本県","大分県","宮崎県","鹿児島県","沖縄県"] }
+];
+let mktFilterArea = "", mktFilterKind = "";
 const MARKET = FIREBASE_URL + "/car-kanri/market.json";
 function marketRef(key){ return FIREBASE_URL + "/car-kanri/market/" + key + ".json"; }
 let market = [], mformKind = "car", mformPhoto = "";
@@ -906,11 +918,34 @@ async function loadMarket(){
 async function postMarket(item){ try{ await fetch(MARKET,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(item)});}catch(e){} }
 async function delMarketItem(key){ try{ await fetch(marketRef(key),{method:"DELETE"});}catch(e){} }
 
+function areaOptionsHtml(sel){
+  let o = '<option value=""'+(sel===""?" selected":"")+'>'+t("areaAll")+'</option>';
+  JP_AREAS.forEach(function(a){
+    o += '<optgroup label="'+a.g+'">';
+    a.ja.forEach(function(p){ o += '<option value="'+p+'"'+(sel===p?" selected":"")+'>'+p+'</option>'; });
+    o += '</optgroup>';
+  });
+  return o;
+}
+function setMktArea(v){ mktFilterArea = v; render(); }
+function setMktKind(v){ mktFilterKind = v; render(); }
 function marketListHtml(){
   let h = '<div class="mktnote">'+t("mktShareNote")+'</div>';
-  h += '<div class="listhead">'+t("mktAll")+'（'+market.length+'）</div>';
-  if(!market.length) return h + '<div class="empty">'+t("mktNone")+'</div>';
-  market.forEach(function(m){
+  h += '<div class="mktfilter">'
+    + '<select onchange="setMktArea(this.value)">'+areaOptionsHtml(mktFilterArea)+'</select>'
+    + '<select onchange="setMktKind(this.value)">'
+      + '<option value=""'+(mktFilterKind===""?" selected":"")+'>'+t("kindAll")+'</option>'
+      + '<option value="car"'+(mktFilterKind==="car"?" selected":"")+'>'+t("mktCar")+'</option>'
+      + '<option value="part"'+(mktFilterKind==="part"?" selected":"")+'>'+t("mktPart")+'</option>'
+    + '</select></div>';
+  const shown = market.filter(function(m){
+    if(mktFilterArea && (m.area||"")!==mktFilterArea) return false;
+    if(mktFilterKind && (m.kind||"")!==mktFilterKind) return false;
+    return true;
+  });
+  h += '<div class="listhead">'+t("mktAll")+'（'+shown.length+'）</div>';
+  if(!shown.length) return h + '<div class="empty">'+t("mktNone")+'</div>';
+  shown.forEach(function(m){
     const mine = m.owner===currentUser;
     h += '<div class="mcard">'
       + (m.photo? '<img class="mphoto" src="'+m.photo+'" onclick="viewPhotoSrc(this.src)">':'')
@@ -943,7 +978,7 @@ function openMForm(){
     + '<label>'+t("mktKind")+'</label><div class="doctypesw" id="mkindsw">'+mkindSwHtml()+'</div>'
     + '<label>'+t("mktName")+'</label><input type="text" id="m_name" placeholder="'+esc(t("phMktName"))+'">'
     + '<label>'+t("mktPrice")+'</label><div class="yeninput"><span>¥</span><input type="number" inputmode="numeric" id="m_price" placeholder="0"></div>'
-    + '<label>'+t("mktArea")+'</label><input type="text" id="m_area" placeholder="'+esc(t("phMktArea"))+'">'
+    + '<label>'+t("mktArea")+'</label><select id="m_area">'+areaOptionsHtml("")+'</select>'
     + '<label>'+t("mktContact")+'</label><input type="text" id="m_contact" placeholder="'+esc(t("phMktContact"))+'">'
     + '<label>'+t("photo")+'</label><div id="mphotoprev"></div>'
     + '<label class="addrow" style="cursor:pointer;display:block;text-align:center;">'+t("addPhoto")+'<input type="file" accept="image/*" style="display:none;" onchange="onPickMPhoto(this)"></label>'
