@@ -158,6 +158,8 @@
   .mbody .del { position:absolute; top:10px; right:10px; }
   .mktnote { background:#eff6ff; color:#1d4ed8; border-radius:12px; padding:10px 12px; font-size:13px; margin-bottom:12px; line-height:1.5; }
   .itemrow .mcat { width:auto; min-width:66px; max-width:92px; margin:0; padding:6px 8px; font-size:14px; }
+  .gsigninbtn { width:100%; display:flex; align-items:center; justify-content:center; gap:10px; border:1px solid #dadce0; background:#fff; border-radius:12px; padding:14px; font-size:16px; font-weight:600; color:#3c4043; cursor:pointer; font-family:inherit; }
+  .gsigninbtn:hover { background:#f8f9fa; }
   .no-print {}
   @media print {
     body { background:#fff; }
@@ -169,6 +171,8 @@
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
 </head>
 <body>
 <div id="app"></div>
@@ -176,6 +180,9 @@
 <script>
 // ====== 保存先 ======
 const KEY = "car-kanri-data-v1";
+var firebaseConfig = { apiKey:"AIzaSyAzhuyDJq_JvfzjOBvs6JjloLbozJmsMLs", authDomain:"shift-app-fa13d.firebaseapp.com", databaseURL:"https://shift-app-fa13d-default-rtdb.firebaseio.com", projectId:"shift-app-fa13d", storageBucket:"shift-app-fa13d.firebasestorage.app", messagingSenderId:"599604964523", appId:"1:599604964523:web:2e37264761ec38983c1bee" };
+try { firebase.initializeApp(firebaseConfig); } catch(e){}
+var fbAuth = firebase.auth();
 // ▼▼▼ ここだけ自分のFirebaseアドレスに変えられます ▼▼▼
 const FIREBASE_URL = "https://shift-app-fa13d-default-rtdb.firebaseio.com";
 const CLOUD_PATH = "car-kanri";
@@ -439,7 +446,7 @@ async function loadUserData(){
   }
   loadPhotos();
 }
-function logout(){ currentUser=null; isAdmin=false; try{ localStorage.removeItem("car-session"); }catch(_){} showLogin(); }
+function logout(){ try{ fbAuth.signOut(); }catch(e){} }
 
 // ====== お祈り（礼拝時刻） ======
 const CITIES = [
@@ -525,18 +532,19 @@ function prayerHtml(){
   return h;
 }
 function showLogin(msg){
+  var gtxt = lang==="ja"?"Google でログイン":(lang==="ar"?"تسجيل الدخول عبر Google":(lang==="ur"?"Google سے سائن ان کریں":"Sign in with Google"));
   document.getElementById("app").innerHTML =
     '<div class="loginwrap"><div class="logincard">'
     + '<div class="loginlogo">🚗</div>'
     + '<div class="logintitle">'+t("appTitle")+'</div>'
-    + (msg? '<div class="loginerr">'+esc(msg)+'</div>' : '')
-    + '<label>'+t("loginId")+'</label><input type="text" id="login_id" autocomplete="username">'
-    + '<label>'+t("loginPass")+'</label><input type="password" id="login_pass" autocomplete="current-password">'
-    + '<button class="submit dark" onclick="doLogin()">'+t("login")+'</button>'
-    + '<div style="text-align:center;margin-top:14px;"><span class="langsw" style="display:inline-flex;">'
-    + langSwHtml()
-    + '</span></div>'
+    + (msg? '<div class="loginerr">'+esc(msg)+'</div>':'')
+    + '<button class="gsigninbtn" onclick="googleLogin()"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:20px;height:20px;"> '+gtxt+'</button>'
+    + '<div style="text-align:center;margin-top:16px;"><span class="langsw" style="display:inline-flex;">'+langSwHtml()+'</span></div>'
     + '</div></div>';
+}
+function googleLogin(){
+  var provider = new firebase.auth.GoogleAuthProvider();
+  fbAuth.signInWithPopup(provider).catch(function(e){ showLogin((e&&e.message)||"login error"); });
 }
 async function doLogin(){
   const id = (document.getElementById("login_id").value||"").trim();
@@ -1213,31 +1221,16 @@ function renderDocPreviewOnly(){ const p=document.getElementById("docpaper"); if
 function syncPrev(){ renderDocPreviewOnly(); }
 
 applyDir();
-function boot(){
-  let sess=null;
-  try{ const s=localStorage.getItem("car-session"); if(s) sess=JSON.parse(s); }catch(_){}
-  if(sess && sess.id){
-    // まず保存済みログインを信じて復元（通信待ちでログアウトしない）
-    currentUser=sess.id; isAdmin=!!sess.admin;
+
+fbAuth.onAuthStateChanged(function(user){
+  if(user){
+    currentUser = user.uid; isAdmin = false;
     document.getElementById("app").innerHTML = '<div style="padding:60px 20px;text-align:center;color:#94a3b8;">'+t("loading")+'</div>';
-    fetchAccounts().then(function(){
-      // 名簿がちゃんと取れて、その人が明確に削除されている場合だけログアウト
-      if(accounts && Object.keys(accounts).length>0 && !accounts[sess.id]){
-        currentUser=null; isAdmin=false; try{ localStorage.removeItem("car-session"); }catch(_){}
-        showLogin(); return;
-      }
-      if(isAdmin){ showAdmin(); return; }
-      loadUserData().then(function(){ if(typeof loadPrayerLoc==="function") loadPrayerLoc(); render(); });
-    }).catch(function(){
-      // 通信失敗でもログインは保つ
-      if(isAdmin){ showAdmin(); return; }
-      loadUserData().then(function(){ if(typeof loadPrayerLoc==="function") loadPrayerLoc(); render(); });
-    });
+    loadUserData().then(function(){ if(typeof loadPrayerLoc==="function") loadPrayerLoc(); render(); });
   } else {
-    showLogin();
+    currentUser = null; showLogin();
   }
-}
-boot();
+});
 </script>
 </body>
 </html>
