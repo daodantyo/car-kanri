@@ -575,7 +575,8 @@ function showLogin(msg){
 }
 function googleLogin(){
   var provider = new firebase.auth.GoogleAuthProvider();
-  fbAuth.signInWithPopup(provider).catch(function(e){ showLogin((e&&e.message)||"login error"); });
+  try { document.getElementById("app").innerHTML = '<div style="padding:60px 20px;text-align:center;color:#94a3b8;">'+t("loading")+'</div>'; } catch(e){}
+  fbAuth.signInWithRedirect(provider).catch(function(e){ showLogin((e&&e.message)||"login error"); });
 }
 async function doLogin(){
   const id = (document.getElementById("login_id").value||"").trim();
@@ -1286,6 +1287,9 @@ function syncPrev(){ renderDocPreviewOnly(); }
 
 applyDir();
 
+fbAuth.getRedirectResult().catch(function(e){
+  if(e && e.message){ setTimeout(function(){ if(!fbAuth.currentUser) showLogin(e.message); }, 800); }
+});
 fbAuth.onAuthStateChanged(function(user){
   if(user){
     currentUser = user.uid; isAdmin = false;
