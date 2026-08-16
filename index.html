@@ -162,6 +162,8 @@
   .gsigninbtn:hover { background:#f8f9fa; }
   .mktfilter { display:flex; gap:8px; margin-bottom:12px; }
   .mktfilter select { flex:1; margin:0; padding:10px 12px; font-size:14px; border-radius:12px; }
+  .verifybar { background:#fff7ed; border:1px solid #fed7aa; color:#9a3412; border-radius:12px; padding:10px 12px; font-size:13px; line-height:1.6; margin-bottom:12px; }
+  .verifybar button { margin-left:6px; border:none; background:#ea580c; color:#fff; border-radius:8px; padding:5px 10px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; }
   .no-print {}
   @media print {
     body { background:#fff; }
@@ -600,6 +602,28 @@ function resetPass(){
     showLogin(code==="auth/user-not-found" ? (lang==="ja"?"このメールは登録されていません。":"Email not found.") : ((e&&e.message)||"error"));
   });
 }
+function verifyBarHtml(){
+  try {
+    var u = fbAuth.currentUser;
+    if(!u || u.emailVerified || !u.email) return "";
+    var msg = lang==="ja" ? "メールアドレスが未確認です。届いたメールのリンクを押してください。"
+      : (lang==="ar" ? "لم يتم تأكيد بريدك الإلكتروني. اضغط على الرابط في رسالتنا."
+      : (lang==="ur" ? "آپ کی ای میل تصدیق شدہ نہیں۔ ای میل میں لنک دبائیں۔"
+      : "Your email is not verified. Please tap the link in the email we sent."));
+    var btn = lang==="ja" ? "確認メールを再送" : (lang==="ar" ? "إعادة الإرسال" : (lang==="ur" ? "دوبارہ بھیجیں" : "Resend email"));
+    return '<div class="verifybar">'+esc(msg)+' <button onclick="resendVerify()">'+btn+'</button></div>';
+  } catch(e){ return ""; }
+}
+function resendVerify(){
+  var u = fbAuth.currentUser;
+  if(!u){ return; }
+  u.sendEmailVerification().then(function(){
+    alert(lang==="ja" ? "確認メールを送りました。メールを開いてリンクを押してください。（届かないときは迷惑メールもご確認ください）"
+      : (lang==="ar" ? "تم إرسال رسالة التحقق." : (lang==="ur" ? "تصدیقی ای میل بھیج دی گئی۔" : "Verification email sent.")));
+  }).catch(function(){
+    alert(lang==="ja" ? "送信できませんでした。しばらくしてからもう一度お試しください。" : "Could not send. Please try again later.");
+  });
+}
 function setAuthMode(m){ window._authMode = m; showLogin(); }
 function toggleAuthMode(){ window._authMode = (window._authMode==="signup")?"login":"signup"; showLogin(); }
 function emailAuth(){
@@ -747,6 +771,8 @@ function render(){
     + '<span class="langsw">'
     + langSwHtml()
     + '</span></div></div>';
+
+  html += verifyBarHtml();
 
   html += '<div class="card tabs">'
     + tabBtn("prayer",t("tabPrayer")) + tabBtn("market",t("tabMarket")) + tabBtn("schedule",t("tabSchedule")) + tabBtn("expense",t("tabExpense")) + tabBtn("estimate",t("tabEstimate")) + tabBtn("purchase",t("tabPurchase")) + tabBtn("parts",t("tabParts"))
