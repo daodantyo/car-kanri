@@ -7,6 +7,7 @@
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body { margin:0; font-family: -apple-system, "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif; background:#f1f5f9; color:#1e293b; }
+  body::before { content:""; position:fixed; inset:0; z-index:-1; background-image:linear-gradient(rgba(241,245,249,.90), rgba(241,245,249,.94)), url('/bg.jpg'); background-size:cover; background-position:center; }
   .wrap { max-width:640px; margin:0 auto; padding:20px 16px 120px; }
   h1 { font-size:20px; margin:0; font-weight:700; }
   .head { display:flex; align-items:center; gap:8px; margin-bottom:16px; }
