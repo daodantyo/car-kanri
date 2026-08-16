@@ -1098,6 +1098,14 @@ function areaOptionsHtml(sel){
 }
 function setMktArea(v){ mktFilterArea = v; render(); }
 function setMktKind(v){ mktFilterKind = v; render(); }
+const ADMIN_EMAILS = ["dandan1340668@gmail.com"];
+function isAdminUser(){
+  try {
+    var u = fbAuth.currentUser;
+    if(!u || !u.email) return false;
+    return ADMIN_EMAILS.indexOf(u.email.toLowerCase()) >= 0;
+  } catch(e){ return false; }
+}
 function marketListHtml(){
   let h = '<div class="mktnote">'+t("mktShareNote")+'</div>';
   h += '<div class="mktfilter">'
@@ -1115,7 +1123,7 @@ function marketListHtml(){
   h += '<div class="listhead">'+t("mktAll")+'（'+shown.length+'）</div>';
   if(!shown.length) return h + '<div class="empty">'+t("mktNone")+'</div>';
   shown.forEach(function(m){
-    const mine = m.owner===currentUser;
+    const mine = (m.owner===currentUser) || isAdminUser();
     h += '<div class="mcard">'
       + (m.photo? '<img class="mphoto" src="'+m.photo+'" onclick="viewPhotoSrc(this.src)">':'')
       + '<div class="mbody">'
@@ -1163,7 +1171,16 @@ async function submitMarket(){
   closeModal();
   ui.tab="market"; await loadMarket(); render();
 }
-async function removeMarket(key){ if(!confirm(t("confDel2"))) return; await delMarketItem(key); await loadMarket(); render(); }
+async function removeMarket(key){
+  var item = null;
+  for(var i=0;i<market.length;i++){ if(market[i].key===key){ item = market[i]; break; } }
+  var others = item && item.owner !== currentUser;
+  var msg = others
+    ? (lang==="ja" ? "【管理者】他の人の出品を削除します。よろしいですか？" : "[Admin] Delete another user's listing. Are you sure?")
+    : t("confDel2");
+  if(!confirm(msg)) return;
+  await delMarketItem(key); await loadMarket(); render();
+}
 
 // ====== お知らせ（予定の時間に通知） ======
 let notifiedIds = {};
