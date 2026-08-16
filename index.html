@@ -564,14 +564,47 @@ function prayerHtml(){
 }
 function showLogin(msg){
   var gtxt = lang==="ja"?"Google でログイン":(lang==="ar"?"تسجيل الدخول عبر Google":(lang==="ur"?"Google سے سائن ان کریں":"Sign in with Google"));
+  var L = {
+    ja:{ email:"メールアドレス", pass:"パスワード", login:"ログイン", signup:"新規登録", or:"または", toSignup:"アカウントがない方はこちら（新規登録）", toLogin:"アカウントをお持ちの方はこちら（ログイン）" },
+    en:{ email:"Email", pass:"Password", login:"Log in", signup:"Sign up", or:"or", toSignup:"New here? Create an account", toLogin:"Already have an account? Log in" },
+    ar:{ email:"البريد الإلكتروني", pass:"كلمة المرور", login:"تسجيل الدخول", signup:"إنشاء حساب", or:"أو", toSignup:"مستخدم جديد؟ أنشئ حسابًا", toLogin:"لديك حساب؟ سجّل الدخول" },
+    ur:{ email:"ای میل", pass:"پاس ورڈ", login:"لاگ ان", signup:"نیا اکاؤنٹ", or:"یا", toSignup:"نیا اکاؤنٹ بنائیں", toLogin:"پہلے سے اکاؤنٹ ہے؟ لاگ ان کریں" }
+  };
+  var x = L[lang] || L.en;
+  var mode = window._authMode || "login";
   document.getElementById("app").innerHTML =
     '<div class="loginwrap"><div class="logincard">'
     + '<div class="loginlogo"><img src="/icon-192.png" style="width:100%;height:100%;border-radius:16px;object-fit:cover;"></div>'
     + '<div class="logintitle">'+t("appTitle")+'</div>'
     + (msg? '<div class="loginerr">'+esc(msg)+'</div>':'')
+    + '<input type="email" id="em_email" placeholder="'+x.email+'" autocomplete="username" style="margin-bottom:8px;">'
+    + '<input type="password" id="em_pass" placeholder="'+x.pass+'" autocomplete="current-password" style="margin-bottom:12px;">'
+    + '<button class="submit dark" onclick="emailAuth()">'+(mode==="signup"?x.signup:x.login)+'</button>'
+    + '<div style="text-align:center;margin:10px 0;"><a href="javascript:void(0)" onclick="toggleAuthMode()" style="color:#4f46e5;font-size:13px;text-decoration:none;">'+(mode==="signup"?x.toLogin:x.toSignup)+'</a></div>'
+    + '<div style="text-align:center;color:#94a3b8;font-size:12px;margin:8px 0;">'+x.or+'</div>'
     + '<button class="gsigninbtn" onclick="googleLogin()"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:20px;height:20px;"> '+gtxt+'</button>'
     + '<div style="text-align:center;margin-top:16px;"><span class="langsw" style="display:inline-flex;">'+langSwHtml()+'</span></div>'
     + '</div></div>';
+}
+function toggleAuthMode(){ window._authMode = (window._authMode==="signup")?"login":"signup"; showLogin(); }
+function emailAuth(){
+  var email = (document.getElementById("em_email").value||"").trim();
+  var pass = document.getElementById("em_pass").value||"";
+  if(!email || !pass){ showLogin(lang==="ja"?"メールアドレスとパスワードを入れてください。":"Please enter email and password."); return; }
+  if(pass.length < 6){ showLogin(lang==="ja"?"パスワードは6文字以上にしてください。":"Password must be at least 6 characters."); return; }
+  var mode = window._authMode || "login";
+  document.getElementById("app").innerHTML = '<div style="padding:60px 20px;text-align:center;color:#94a3b8;">'+t("loading")+'</div>';
+  var p = (mode==="signup") ? fbAuth.createUserWithEmailAndPassword(email, pass) : fbAuth.signInWithEmailAndPassword(email, pass);
+  p.catch(function(e){
+    var code = e && e.code || "";
+    var m;
+    if(code==="auth/email-already-in-use") m = (lang==="ja"?"このメールは登録済みです。ログインしてください。":"Email already registered. Please log in.");
+    else if(code==="auth/wrong-password" || code==="auth/invalid-credential") m = (lang==="ja"?"メールかパスワードが違います。":"Wrong email or password.");
+    else if(code==="auth/user-not-found") m = (lang==="ja"?"このメールは未登録です。新規登録してください。":"Email not found. Please sign up.");
+    else if(code==="auth/invalid-email") m = (lang==="ja"?"メールアドレスの形式が正しくありません。":"Invalid email format.");
+    else m = (e && e.message) || "error";
+    showLogin(m);
+  });
 }
 function googleLogin(){
   var provider = new firebase.auth.GoogleAuthProvider();
