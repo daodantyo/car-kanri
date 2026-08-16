@@ -627,8 +627,6 @@ function showLogin(msg){
     + '<button class="submit dark" onclick="emailAuth()">'+x.login+'</button>'
     + '<div style="text-align:center;margin:12px 0 4px;"><a href="javascript:void(0)" onclick="setAuthMode(\'signup\')" style="color:#4f46e5;font-size:13px;text-decoration:none;font-weight:600;">'+(lang==="ja"?"はじめての方はこちら（新規登録）":(lang==="ar"?"مستخدم جديد؟ أنشئ حسابًا":(lang==="ur"?"نیا اکاؤنٹ بنائیں":"New here? Create an account")))+'</a></div>'
     + ('<div style="text-align:center;margin:-4px 0 10px;"><a href="javascript:void(0)" onclick="setAuthMode(\'reset\')" style="color:#94a3b8;font-size:12px;text-decoration:none;">'+(lang==="ja"?"パスワードを忘れた方":(lang==="ar"?"نسيت كلمة المرور؟":(lang==="ur"?"پاس ورڈ بھول گئے؟":"Forgot password?")))+'</a></div>')
-    + '<div style="text-align:center;color:#94a3b8;font-size:12px;margin:8px 0;">'+x.or+'</div>'
-    + '<button class="gsigninbtn" onclick="googleLogin()"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:20px;height:20px;"> '+gtxt+'</button>'
     + '<div style="text-align:center;margin-top:16px;"><span class="langsw" style="display:inline-flex;">'+langSwHtml()+'</span></div>'
     + '</div></div>';
 }
