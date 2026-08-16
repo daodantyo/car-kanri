@@ -184,6 +184,7 @@
     .langsw button { padding:4px 8px; font-size:11px; }
   }
   .bottombar { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:6px; margin-top:22px; padding-top:16px; border-top:1px solid rgba(148,163,184,.4); }
+  .mbody .medit { right:44px; }
   .no-print {}
   @media print {
     body { background:#fff; }
@@ -1085,6 +1086,7 @@ const JP_AREAS = [
   { g:"九州・沖縄", ja:["福岡県","佐賀県","長崎県","熊本県","大分県","宮崎県","鹿児島県","沖縄県"] }
 ];
 let mktFilterArea = "", mktFilterKind = "";
+let mEditKey = null;
 const MARKET = FIREBASE_URL + "/car-kanri/market.json";
 function marketRef(key){ return FIREBASE_URL + "/car-kanri/market/" + key + ".json"; }
 let market = [], mformKind = "car", mformPhoto = "";
@@ -1098,6 +1100,7 @@ async function loadMarket(){
 }
 async function postMarket(item){ try{ await fetch(MARKET,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(item)});}catch(e){} }
 async function delMarketItem(key){ try{ await fetch(marketRef(key),{method:"DELETE"});}catch(e){} }
+async function patchMarketItem(key, obj){ try{ await fetch(marketRef(key),{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(obj)});}catch(e){} }
 
 function areaOptionsHtml(sel){
   let o = '<option value=""'+(sel===""?" selected":"")+'>'+t("areaAll")+'</option>';
@@ -1145,7 +1148,7 @@ function marketListHtml(){
       + (m.area? '<div class="mmeta">📍 '+esc(m.area)+'</div>':'')
       + (m.contact? '<div class="mmeta">📞 '+esc(m.contact)+'</div>':'')
       + '<div class="mowner">'+esc(m.ownerName||"")+'</div>'
-      + (mine? '<button class="del" onclick="removeMarket(\''+m.key+'\')">🗑</button>':'')
+      + (mine? '<button class="del medit" onclick="openMForm(\''+m.key+'\')" title="edit">✏️</button><button class="del" onclick="removeMarket(\''+m.key+'\')">🗑</button>':'')
       + '</div></div>';
   });
   return h;
@@ -1160,26 +1163,41 @@ function onPickMPhoto(input){
   input.value="";
 }
 function clearMPhoto(){ mformPhoto=""; const el=document.getElementById("mphotoprev"); if(el) el.innerHTML=""; }
-function openMForm(){
-  mformKind="car"; mformPhoto="";
+function openMForm(key){
+  var it = null;
+  mEditKey = null;
+  if(key){
+    for(var i=0;i<market.length;i++){ if(market[i].key===key){ it = market[i]; break; } }
+    if(it) mEditKey = key;
+  }
+  mformKind = it ? (it.kind||"car") : "car";
+  mformPhoto = it ? (it.photo||"") : "";
+  var title = it ? (lang==="ja"?"出品を編集":(lang==="ar"?"تعديل الإعلان":(lang==="ur"?"اشتہار میں ترمیم":"Edit listing"))) : t("mktTitle");
+  var btn = it ? (lang==="ja"?"変更を保存":(lang==="ar"?"حفظ التغييرات":(lang==="ur"?"تبدیلیاں محفوظ کریں":"Save changes"))) : t("mktSave");
   const html = '<div class="overlay" onclick="closeModal(event)"><div class="sheet" onclick="event.stopPropagation()">'
-    + '<div class="sheethead"><h2>'+t("mktTitle")+'</h2><button class="xbtn" onclick="closeModal()">✕</button></div>'
+    + '<div class="sheethead"><h2>'+title+'</h2><button class="xbtn" onclick="closeModal()">✕</button></div>'
     + '<label>'+t("mktKind")+'</label><div class="doctypesw" id="mkindsw">'+mkindSwHtml()+'</div>'
-    + '<label>'+t("mktName")+'</label><input type="text" id="m_name" placeholder="'+esc(t("phMktName"))+'">'
-    + '<label>'+t("mktPrice")+'</label><div class="yeninput"><span>¥</span><input type="number" inputmode="numeric" id="m_price" placeholder="0"></div>'
-    + '<label>'+t("mktArea")+'</label><select id="m_area">'+areaOptionsHtml("")+'</select>'
-    + '<label>'+t("mktContact")+'</label><input type="text" id="m_contact" placeholder="'+esc(t("phMktContact"))+'">'
-    + '<label>'+t("photo")+'</label><div id="mphotoprev"></div>'
+    + '<label>'+t("mktName")+'</label><input type="text" id="m_name" value="'+(it?esc(it.name||""):"")+'" placeholder="'+esc(t("phMktName"))+'">'
+    + '<label>'+t("mktPrice")+'</label><div class="yeninput"><span>¥</span><input type="number" inputmode="numeric" id="m_price" value="'+(it&&it.price?it.price:"")+'" placeholder="0"></div>'
+    + '<label>'+t("mktArea")+'</label><select id="m_area">'+areaOptionsHtml(it?(it.area||""):"")+'</select>'
+    + '<label>'+t("mktContact")+'</label><input type="text" id="m_contact" value="'+(it?esc(it.contact||""):"")+'" placeholder="'+esc(t("phMktContact"))+'">'
+    + '<label>'+t("photo")+'</label><div id="mphotoprev">'+(mformPhoto? '<div class="photoedit"><img src="'+mformPhoto+'"><button type="button" onclick="clearMPhoto()">✕</button></div>' : '')+'</div>'
     + '<label class="addrow" style="cursor:pointer;display:block;text-align:center;">'+t("addPhoto")+'<input type="file" accept="image/*" style="display:none;" onchange="onPickMPhoto(this)"></label>'
-    + '<button class="submit dark" onclick="submitMarket()">'+t("mktSave")+'</button>'
+    + '<button class="submit dark" onclick="submitMarket()">'+btn+'</button>'
     + '</div></div>';
   openModal(html);
 }
 async function submitMarket(){
   const name=(document.getElementById("m_name").value||"").trim();
   if(!name){ alert(t("alMktName")); return; }
-  const item = { owner:currentUser, ownerName:(accounts[currentUser]&&accounts[currentUser].name)||currentUser, kind:mformKind, name:name, price:Number(document.getElementById("m_price").value)||0, area:(document.getElementById("m_area").value||"").trim(), contact:(document.getElementById("m_contact").value||"").trim(), photo:mformPhoto, ts:Date.now() };
-  await postMarket(item);
+  const base = { kind:mformKind, name:name, price:Number(document.getElementById("m_price").value)||0, area:(document.getElementById("m_area").value||"").trim(), contact:(document.getElementById("m_contact").value||"").trim(), photo:mformPhoto };
+  if(mEditKey){
+    await patchMarketItem(mEditKey, base);
+    mEditKey = null;
+  } else {
+    const item = Object.assign({ owner:currentUser, ownerName:(accounts[currentUser]&&accounts[currentUser].name)||currentUser, ts:Date.now() }, base);
+    await postMarket(item);
+  }
   closeModal();
   ui.tab="market"; await loadMarket(); render();
 }
