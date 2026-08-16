@@ -658,7 +658,6 @@ function bottomBarHtml(){
     + '<button class="logoutbtn" onclick="exportListPDF()" title="PDF">📄</button>'
     + '<button class="logoutbtn" onclick="openBackup()">💾</button>'
     + '<button class="logoutbtn" onclick="logout()">'+t("logout")+'</button>'
-    + '<span class="langsw">'+langSwHtml()+'</span>'
     + '</div>';
 }
 function verifyBarHtml(){
@@ -825,7 +824,8 @@ function render(){
   const label = monthLabel(ui.y, ui.m);
   let html = '<div class="wrap">';
 
-  html += '<div class="head"><div class="logo">🚗</div><h1>'+t("appTitle")+'</h1></div>';
+  html += '<div class="head"><div class="logo">🚗</div><h1>'+t("appTitle")+'</h1>'
+    + '<span class="langsw" style="margin-left:auto;">'+langSwHtml()+'</span></div>';
 
   html += verifyBarHtml();
 
