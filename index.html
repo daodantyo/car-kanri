@@ -569,7 +569,25 @@ function showLogin(msg){
     ur:{ email:"ای میل", pass:"پاس ورڈ", login:"لاگ ان", signup:"نیا اکاؤنٹ", or:"یا", toSignup:"نیا اکاؤنٹ بنائیں", toLogin:"پہلے سے اکاؤنٹ ہے؟ لاگ ان کریں", hintLogin:"رجسٹرڈ صارفین کے لیے", hintSignup:"پہلی بار (پاس ورڈ: کم از کم 6 حروف)" }
   };
   var x = L[lang] || L.en;
-  var mode = (window._authMode==="signup") ? "signup" : "login";
+  var mode = (window._authMode==="signup") ? "signup" : ((window._authMode==="reset") ? "reset" : "login");
+  if(mode==="reset"){
+    var rTitle = lang==="ja"?"パスワードの再設定":(lang==="ar"?"إعادة تعيين كلمة المرور":(lang==="ur"?"پاس ورڈ ری سیٹ":"Reset password"));
+    var rHint = lang==="ja"?"登録したメールアドレスを入れてください。再設定用のメールをお送りします。":(lang==="ar"?"أدخل بريدك الإلكتروني المسجل. سنرسل لك رسالة لإعادة التعيين.":(lang==="ur"?"اپنی رجسٹرڈ ای میل درج کریں۔ ہم ری سیٹ ای میل بھیجیں گے۔":"Enter your registered email. We'll send you a reset link."));
+    var rBtn = lang==="ja"?"再設定メールを送る":(lang==="ar"?"إرسال رسالة إعادة التعيين":(lang==="ur"?"ری سیٹ ای میل بھیجیں":"Send reset email"));
+    var rBack = lang==="ja"?"← ログインに戻る":(lang==="ar"?"← العودة لتسجيل الدخول":(lang==="ur"?"← لاگ ان پر واپس":"← Back to log in"));
+    document.getElementById("app").innerHTML =
+      '<div class="loginwrap"><div class="logincard">'
+      + '<div class="loginlogo">🚗</div>'
+      + '<div class="logintitle">'+rTitle+'</div>'
+      + (msg? '<div class="loginerr">'+esc(msg)+'</div>':'')
+      + '<div style="text-align:center;font-size:12px;color:#94a3b8;margin:6px 0 14px;line-height:1.6;">'+rHint+'</div>'
+      + '<input type="email" id="em_email" placeholder="'+x.email+'" autocomplete="username" style="margin-bottom:12px;">'
+      + '<button class="submit dark" onclick="resetPass()">'+rBtn+'</button>'
+      + '<div style="text-align:center;margin-top:12px;"><a href="javascript:void(0)" onclick="setAuthMode(\'login\')" style="color:#4f46e5;font-size:13px;text-decoration:none;">'+rBack+'</a></div>'
+      + '<div style="text-align:center;margin-top:16px;"><span class="langsw" style="display:inline-flex;">'+langSwHtml()+'</span></div>'
+      + '</div></div>';
+    return;
+  }
   document.getElementById("app").innerHTML =
     '<div class="loginwrap"><div class="logincard">'
     + '<div class="loginlogo">🚗</div>'
@@ -583,7 +601,7 @@ function showLogin(msg){
     + '<input type="email" id="em_email" placeholder="'+x.email+'" autocomplete="username" style="margin-bottom:8px;">'
     + '<input type="password" id="em_pass" placeholder="'+x.pass+'" autocomplete="current-password" style="margin-bottom:12px;">'
     + '<button class="submit dark" onclick="emailAuth()">'+(mode==="signup"?x.signup:x.login)+'</button>'
-    + (mode==="signup" ? '' : '<div style="text-align:center;margin:-4px 0 10px;"><a href="javascript:void(0)" onclick="resetPass()" style="color:#94a3b8;font-size:12px;text-decoration:none;">'+(lang==="ja"?"パスワードを忘れた方":(lang==="ar"?"نسيت كلمة المرور؟":(lang==="ur"?"پاس ورڈ بھول گئے؟":"Forgot password?")))+'</a></div>')
+    + (mode==="signup" ? '' : '<div style="text-align:center;margin:-4px 0 10px;"><a href="javascript:void(0)" onclick="setAuthMode(\'reset\')" style="color:#94a3b8;font-size:12px;text-decoration:none;">'+(lang==="ja"?"パスワードを忘れた方":(lang==="ar"?"نسيت كلمة المرور؟":(lang==="ur"?"پاس ورڈ بھول گئے؟":"Forgot password?")))+'</a></div>')
     + '<div style="text-align:center;color:#94a3b8;font-size:12px;margin:8px 0;">'+x.or+'</div>'
     + '<button class="gsigninbtn" onclick="googleLogin()"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:20px;height:20px;"> '+gtxt+'</button>'
     + '<div style="text-align:center;margin-top:16px;"><span class="langsw" style="display:inline-flex;">'+langSwHtml()+'</span></div>'
@@ -597,6 +615,7 @@ function resetPass(){
       : (lang==="ar" ? "تم إرسال رسالة إعادة تعيين كلمة المرور."
       : (lang==="ur" ? "پاس ورڈ ری سیٹ ای میل بھیج دی گئی۔"
       : "Password reset email sent. Open it to set a new password.")));
+    window._authMode = "login"; showLogin();
   }).catch(function(e){
     var code = (e && e.code) || "";
     showLogin(code==="auth/user-not-found" ? (lang==="ja"?"このメールは登録されていません。":"Email not found.") : ((e&&e.message)||"error"));
