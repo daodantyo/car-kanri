@@ -561,22 +561,26 @@ function prayerHtml(){
 function showLogin(msg){
   var gtxt = lang==="ja"?"Google でログイン":(lang==="ar"?"تسجيل الدخول عبر Google":(lang==="ur"?"Google سے سائن ان کریں":"Sign in with Google"));
   var L = {
-    ja:{ email:"メールアドレス", pass:"パスワード", login:"ログイン", signup:"新規登録", or:"または", toSignup:"アカウントがない方はこちら（新規登録）", toLogin:"アカウントをお持ちの方はこちら（ログイン）" },
-    en:{ email:"Email", pass:"Password", login:"Log in", signup:"Sign up", or:"or", toSignup:"New here? Create an account", toLogin:"Already have an account? Log in" },
-    ar:{ email:"البريد الإلكتروني", pass:"كلمة المرور", login:"تسجيل الدخول", signup:"إنشاء حساب", or:"أو", toSignup:"مستخدم جديد؟ أنشئ حسابًا", toLogin:"لديك حساب؟ سجّل الدخول" },
-    ur:{ email:"ای میل", pass:"پاس ورڈ", login:"لاگ ان", signup:"نیا اکاؤنٹ", or:"یا", toSignup:"نیا اکاؤنٹ بنائیں", toLogin:"پہلے سے اکاؤنٹ ہے؟ لاگ ان کریں" }
+    ja:{ email:"メールアドレス", pass:"パスワード", login:"ログイン", signup:"新規登録", or:"または", toSignup:"アカウントがない方はこちら（新規登録）", toLogin:"アカウントをお持ちの方はこちら（ログイン）", hintLogin:"登録済みの方はこちら", hintSignup:"はじめての方はこちら（パスワードは6文字以上）" },
+    en:{ email:"Email", pass:"Password", login:"Log in", signup:"Sign up", or:"or", toSignup:"New here? Create an account", toLogin:"Already have an account? Log in", hintLogin:"For registered users", hintSignup:"First time here (password: 6+ characters)" },
+    ar:{ email:"البريد الإلكتروني", pass:"كلمة المرور", login:"تسجيل الدخول", signup:"إنشاء حساب", or:"أو", toSignup:"مستخدم جديد؟ أنشئ حسابًا", toLogin:"لديك حساب؟ سجّل الدخول", hintLogin:"للمستخدمين المسجلين", hintSignup:"مستخدم جديد (كلمة المرور: 6 أحرف على الأقل)" },
+    ur:{ email:"ای میل", pass:"پاس ورڈ", login:"لاگ ان", signup:"نیا اکاؤنٹ", or:"یا", toSignup:"نیا اکاؤنٹ بنائیں", toLogin:"پہلے سے اکاؤنٹ ہے؟ لاگ ان کریں", hintLogin:"رجسٹرڈ صارفین کے لیے", hintSignup:"پہلی بار (پاس ورڈ: کم از کم 6 حروف)" }
   };
   var x = L[lang] || L.en;
-  var mode = window._authMode || "login";
+  var mode = (window._authMode==="signup") ? "signup" : "login";
   document.getElementById("app").innerHTML =
     '<div class="loginwrap"><div class="logincard">'
     + '<div class="loginlogo">🚗</div>'
     + '<div class="logintitle">'+t("appTitle")+'</div>'
     + (msg? '<div class="loginerr">'+esc(msg)+'</div>':'')
+    + '<div class="doctypesw" style="margin-top:4px;">'
+      + '<button type="button" class="'+(mode==="login"?"on":"")+'" onclick="setAuthMode(\'login\')">'+x.login+'</button>'
+      + '<button type="button" class="'+(mode==="signup"?"on":"")+'" onclick="setAuthMode(\'signup\')">'+x.signup+'</button>'
+    + '</div>'
+    + '<div style="text-align:center;font-size:12px;color:#94a3b8;margin:-8px 0 12px;">'+(mode==="signup"?x.hintSignup:x.hintLogin)+'</div>'
     + '<input type="email" id="em_email" placeholder="'+x.email+'" autocomplete="username" style="margin-bottom:8px;">'
     + '<input type="password" id="em_pass" placeholder="'+x.pass+'" autocomplete="current-password" style="margin-bottom:12px;">'
     + '<button class="submit dark" onclick="emailAuth()">'+(mode==="signup"?x.signup:x.login)+'</button>'
-    + '<div style="text-align:center;margin:10px 0;"><a href="javascript:void(0)" onclick="toggleAuthMode()" style="color:#4f46e5;font-size:13px;text-decoration:none;">'+(mode==="signup"?x.toLogin:x.toSignup)+'</a></div>'
     + (mode==="signup" ? '' : '<div style="text-align:center;margin:-4px 0 10px;"><a href="javascript:void(0)" onclick="resetPass()" style="color:#94a3b8;font-size:12px;text-decoration:none;">'+(lang==="ja"?"パスワードを忘れた方":(lang==="ar"?"نسيت كلمة المرور؟":(lang==="ur"?"پاس ورڈ بھول گئے؟":"Forgot password?")))+'</a></div>')
     + '<div style="text-align:center;color:#94a3b8;font-size:12px;margin:8px 0;">'+x.or+'</div>'
     + '<button class="gsigninbtn" onclick="googleLogin()"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:20px;height:20px;"> '+gtxt+'</button>'
@@ -596,13 +600,14 @@ function resetPass(){
     showLogin(code==="auth/user-not-found" ? (lang==="ja"?"このメールは登録されていません。":"Email not found.") : ((e&&e.message)||"error"));
   });
 }
+function setAuthMode(m){ window._authMode = m; showLogin(); }
 function toggleAuthMode(){ window._authMode = (window._authMode==="signup")?"login":"signup"; showLogin(); }
 function emailAuth(){
   var email = (document.getElementById("em_email").value||"").trim();
   var pass = document.getElementById("em_pass").value||"";
   if(!email || !pass){ showLogin(lang==="ja"?"メールアドレスとパスワードを入れてください。":"Please enter email and password."); return; }
   if(pass.length < 6){ showLogin(lang==="ja"?"パスワードは6文字以上にしてください。":"Password must be at least 6 characters."); return; }
-  var mode = window._authMode || "login";
+  var mode = (window._authMode==="signup") ? "signup" : "login";
   document.getElementById("app").innerHTML = '<div style="padding:60px 20px;text-align:center;color:#94a3b8;">'+t("loading")+'</div>';
   var p = (mode==="signup") ? fbAuth.createUserWithEmailAndPassword(email, pass) : fbAuth.signInWithEmailAndPassword(email, pass);
   p.then(function(cred){
