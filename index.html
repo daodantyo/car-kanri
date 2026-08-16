@@ -175,7 +175,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
-<link rel="apple-touch-icon" href="/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Car Manager">
@@ -183,8 +182,6 @@
 <meta name="mobile-web-app-capable" content="yes">
 <script>
 (function(){
-  var icon192 = "/icon-192.png";
-  var icon512 = "/icon-512.png";
   var manifest = {
     name: "Car Manager",
     short_name: "Car Manager",
@@ -193,8 +190,7 @@
     background_color: "#f1f5f9",
     theme_color: "#1e293b",
     icons: [
-      { src: icon192, sizes: "192x192", type: "image/png", purpose: "any maskable" },
-      { src: icon512, sizes: "512x512", type: "image/png", purpose: "any maskable" }
+
     ]
   };
   var blob = new Blob([JSON.stringify(manifest)], {type:"application/json"});
@@ -574,7 +570,7 @@ function showLogin(msg){
   var mode = window._authMode || "login";
   document.getElementById("app").innerHTML =
     '<div class="loginwrap"><div class="logincard">'
-    + '<div class="loginlogo"><img src="/icon-192.png" style="width:100%;height:100%;border-radius:16px;object-fit:cover;"></div>'
+    + '<div class="loginlogo">🚗</div>'
     + '<div class="logintitle">'+t("appTitle")+'</div>'
     + (msg? '<div class="loginerr">'+esc(msg)+'</div>':'')
     + '<input type="email" id="em_email" placeholder="'+x.email+'" autocomplete="username" style="margin-bottom:8px;">'
@@ -637,7 +633,7 @@ function showAdmin(){
   }).join("") : '<div class="empty">'+t("noCustomers")+'</div>';
   document.getElementById("app").innerHTML =
     '<div class="adminwrap">'
-    + '<div class="head"><div class="logo"><img src="/icon-192.png" style="width:100%;height:100%;border-radius:12px;object-fit:cover;"></div><h1>'+t("adminPage")+'</h1>'
+    + '<div class="head"><div class="logo">🚗</div><h1>'+t("adminPage")+'</h1>'
     + '<div style="margin-left:auto;display:flex;gap:6px;align-items:center;">'
     + '<button class="logoutbtn" onclick="logout()">'+t("logout")+'</button>'
     + '<span class="langsw">'+langSwHtml()+'</span>'
@@ -706,7 +702,7 @@ function render(){
   const label = monthLabel(ui.y, ui.m);
   let html = '<div class="wrap">';
 
-  html += '<div class="head"><div class="logo"><img src="/icon-192.png" style="width:100%;height:100%;border-radius:12px;object-fit:cover;"></div><h1>'+t("appTitle")+'</h1>'
+  html += '<div class="head"><div class="logo">🚗</div><h1>'+t("appTitle")+'</h1>'
     + '<div style="margin-left:auto;display:flex;gap:6px;align-items:center;">'
     + '<button class="logoutbtn" onclick="exportListPDF()" title="PDF">📄</button><button class="logoutbtn" onclick="openBackup()">💾</button>'
     + '<button class="logoutbtn" onclick="logout()">'+t("logout")+'</button>'
