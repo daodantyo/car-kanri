@@ -604,8 +604,18 @@ function emailAuth(){
 }
 function googleLogin(){
   var provider = new firebase.auth.GoogleAuthProvider();
-  try { document.getElementById("app").innerHTML = '<div style="padding:60px 20px;text-align:center;color:#94a3b8;">'+t("loading")+'</div>'; } catch(e){}
-  fbAuth.signInWithRedirect(provider).catch(function(e){ showLogin((e&&e.message)||"login error"); });
+  provider.setCustomParameters({ prompt: "select_account" });
+  fbAuth.signInWithPopup(provider).catch(function(e){
+    var code = (e && e.code) || "";
+    // ポップアップが塞がれた/使えない環境だけ、リダイレクト方式で再挑戦
+    if(code==="auth/popup-blocked" || code==="auth/operation-not-supported-in-this-environment" || code==="auth/cancelled-popup-request"){
+      try { document.getElementById("app").innerHTML = '<div style="padding:60px 20px;text-align:center;color:#94a3b8;">'+t("loading")+'</div>'; } catch(_){}
+      fbAuth.signInWithRedirect(provider).catch(function(e2){ showLogin((e2&&e2.message)||"login error"); });
+      return;
+    }
+    if(code==="auth/popup-closed-by-user"){ showLogin(); return; }
+    showLogin((e&&e.message)||"login error");
+  });
 }
 async function doLogin(){
   const id = (document.getElementById("login_id").value||"").trim();
