@@ -620,8 +620,8 @@ function resendVerify(){
   u.sendEmailVerification().then(function(){
     alert(lang==="ja" ? "確認メールを送りました。メールを開いてリンクを押してください。（届かないときは迷惑メールもご確認ください）"
       : (lang==="ar" ? "تم إرسال رسالة التحقق." : (lang==="ur" ? "تصدیقی ای میل بھیج دی گئی۔" : "Verification email sent.")));
-  }).catch(function(){
-    alert(lang==="ja" ? "送信できませんでした。しばらくしてからもう一度お試しください。" : "Could not send. Please try again later.");
+  }).catch(function(err){
+    alert((lang==="ja"?"送信できませんでした：":"Could not send: ")+((err&&(err.code||err.message))||"error"));
   });
 }
 function setAuthMode(m){ window._authMode = m; showLogin(); }
@@ -641,7 +641,9 @@ function emailAuth(){
           : (lang==="ar" ? "تم إرسال رسالة التحقق. افتح بريدك واضغط على الرابط."
           : (lang==="ur" ? "تصدیقی ای میل بھیج دی گئی۔ اپنی ای میل کھول کر لنک دبائیں۔"
           : "Verification email sent. Open your email and tap the link.")));
-      }).catch(function(){});
+      }).catch(function(err){
+        alert((lang==="ja"?"確認メールを送れませんでした：":"Could not send verification email: ")+((err&&(err.code||err.message))||"error"));
+      });
     }
   }).catch(function(e){
     var code = e && e.code || "";
