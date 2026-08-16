@@ -577,10 +577,24 @@ function showLogin(msg){
     + '<input type="password" id="em_pass" placeholder="'+x.pass+'" autocomplete="current-password" style="margin-bottom:12px;">'
     + '<button class="submit dark" onclick="emailAuth()">'+(mode==="signup"?x.signup:x.login)+'</button>'
     + '<div style="text-align:center;margin:10px 0;"><a href="javascript:void(0)" onclick="toggleAuthMode()" style="color:#4f46e5;font-size:13px;text-decoration:none;">'+(mode==="signup"?x.toLogin:x.toSignup)+'</a></div>'
+    + (mode==="signup" ? '' : '<div style="text-align:center;margin:-4px 0 10px;"><a href="javascript:void(0)" onclick="resetPass()" style="color:#94a3b8;font-size:12px;text-decoration:none;">'+(lang==="ja"?"パスワードを忘れた方":(lang==="ar"?"نسيت كلمة المرور؟":(lang==="ur"?"پاس ورڈ بھول گئے؟":"Forgot password?")))+'</a></div>')
     + '<div style="text-align:center;color:#94a3b8;font-size:12px;margin:8px 0;">'+x.or+'</div>'
     + '<button class="gsigninbtn" onclick="googleLogin()"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:20px;height:20px;"> '+gtxt+'</button>'
     + '<div style="text-align:center;margin-top:16px;"><span class="langsw" style="display:inline-flex;">'+langSwHtml()+'</span></div>'
     + '</div></div>';
+}
+function resetPass(){
+  var email = (document.getElementById("em_email").value||"").trim();
+  if(!email){ showLogin(lang==="ja"?"先にメールアドレスを入れてください。":"Please enter your email first."); return; }
+  fbAuth.sendPasswordResetEmail(email).then(function(){
+    alert(lang==="ja" ? "パスワード再設定のメールを送りました。メールを開いて新しいパスワードを決めてください。"
+      : (lang==="ar" ? "تم إرسال رسالة إعادة تعيين كلمة المرور."
+      : (lang==="ur" ? "پاس ورڈ ری سیٹ ای میل بھیج دی گئی۔"
+      : "Password reset email sent. Open it to set a new password.")));
+  }).catch(function(e){
+    var code = (e && e.code) || "";
+    showLogin(code==="auth/user-not-found" ? (lang==="ja"?"このメールは登録されていません。":"Email not found.") : ((e&&e.message)||"error"));
+  });
 }
 function toggleAuthMode(){ window._authMode = (window._authMode==="signup")?"login":"signup"; showLogin(); }
 function emailAuth(){
@@ -591,7 +605,16 @@ function emailAuth(){
   var mode = window._authMode || "login";
   document.getElementById("app").innerHTML = '<div style="padding:60px 20px;text-align:center;color:#94a3b8;">'+t("loading")+'</div>';
   var p = (mode==="signup") ? fbAuth.createUserWithEmailAndPassword(email, pass) : fbAuth.signInWithEmailAndPassword(email, pass);
-  p.catch(function(e){
+  p.then(function(cred){
+    if(mode==="signup" && cred && cred.user){
+      cred.user.sendEmailVerification().then(function(){
+        alert(lang==="ja" ? "確認メールを送りました。メールを開いてリンクを押すと、メールアドレスの確認が完了します。"
+          : (lang==="ar" ? "تم إرسال رسالة التحقق. افتح بريدك واضغط على الرابط."
+          : (lang==="ur" ? "تصدیقی ای میل بھیج دی گئی۔ اپنی ای میل کھول کر لنک دبائیں۔"
+          : "Verification email sent. Open your email and tap the link.")));
+      }).catch(function(){});
+    }
+  }).catch(function(e){
     var code = e && e.code || "";
     var m;
     if(code==="auth/email-already-in-use") m = (lang==="ja"?"このメールは登録済みです。ログインしてください。":"Email already registered. Please log in.");
