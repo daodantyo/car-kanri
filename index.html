@@ -183,6 +183,7 @@
     .logoutbtn { padding:5px 9px; font-size:12px; }
     .langsw button { padding:4px 8px; font-size:11px; }
   }
+  .bottombar { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:6px; margin-top:22px; padding-top:16px; border-top:1px solid rgba(148,163,184,.4); }
   .no-print {}
   @media print {
     body { background:#fff; }
@@ -652,6 +653,14 @@ function resetPass(){
     showLogin(code==="auth/user-not-found" ? (lang==="ja"?"このメールは登録されていません。":"Email not found.") : ((e&&e.message)||"error"));
   });
 }
+function bottomBarHtml(){
+  return '<div class="bottombar">'
+    + '<button class="logoutbtn" onclick="exportListPDF()" title="PDF">📄</button>'
+    + '<button class="logoutbtn" onclick="openBackup()">💾</button>'
+    + '<button class="logoutbtn" onclick="logout()">'+t("logout")+'</button>'
+    + '<span class="langsw">'+langSwHtml()+'</span>'
+    + '</div>';
+}
 function verifyBarHtml(){
   try {
     var u = fbAuth.currentUser;
@@ -816,20 +825,14 @@ function render(){
   const label = monthLabel(ui.y, ui.m);
   let html = '<div class="wrap">';
 
-  html += '<div class="head"><div class="logo">🚗</div><h1>'+t("appTitle")+'</h1>'
-    + '<div style="margin-left:auto;display:flex;gap:6px;align-items:center;">'
-    + '<button class="logoutbtn" onclick="exportListPDF()" title="PDF">📄</button><button class="logoutbtn" onclick="openBackup()">💾</button>'
-    + '<button class="logoutbtn" onclick="logout()">'+t("logout")+'</button>'
-    + '<span class="langsw">'
-    + langSwHtml()
-    + '</span></div></div>';
+  html += '<div class="head"><div class="logo">🚗</div><h1>'+t("appTitle")+'</h1></div>';
 
   html += verifyBarHtml();
 
   html += '<div class="card tabs">'
     + tabBtn("prayer",t("tabPrayer")) + tabBtn("market",t("tabMarket")) + tabBtn("schedule",t("tabSchedule")) + tabBtn("expense",t("tabExpense")) + tabBtn("estimate",t("tabEstimate")) + tabBtn("purchase",t("tabPurchase")) + tabBtn("parts",t("tabParts"))
     + '</div>';
-  if(ui.tab==="prayer"){ html += prayerHtml(); html += '</div>'; document.getElementById("app").innerHTML = html; setupPrayerTimer(); return; }
+  if(ui.tab==="prayer"){ html += prayerHtml(); html += bottomBarHtml(); html += '</div>'; document.getElementById("app").innerHTML = html; setupPrayerTimer(); return; }
 
   if(!isPur && ui.tab!=="parts" && ui.tab!=="market"){
     html += '<div class="card monthnav">'
@@ -890,6 +893,7 @@ function render(){
   }
   html += '</div></div>';
 
+  html += bottomBarHtml();
   document.getElementById("app").innerHTML = html;
 }
 
