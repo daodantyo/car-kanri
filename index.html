@@ -203,25 +203,10 @@
 <meta name="apple-mobile-web-app-title" content="Car Manager">
 <meta name="theme-color" content="#1e293b">
 <meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon-192.png">
 <script>
-(function(){
-  var manifest = {
-    name: "Car Manager",
-    short_name: "Car Manager",
-    start_url: ".",
-    display: "standalone",
-    background_color: "#f1f5f9",
-    theme_color: "#1e293b",
-    icons: [
-
-    ]
-  };
-  var blob = new Blob([JSON.stringify(manifest)], {type:"application/json"});
-  var link = document.createElement("link");
-  link.rel = "manifest";
-  link.href = URL.createObjectURL(blob);
-  document.head.appendChild(link);
-})();
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js'); }
 </script>
 </head>
 <body>
