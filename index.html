@@ -1159,10 +1159,12 @@ function marketListHtml(){
       + '<option value="part"'+(mktFilterKind==="part"?" selected":"")+'>'+t("mktPart")+'</option>'
     + '</select></div>';
   const shown = market.filter(function(m){
+    if(isBlockedOwner(m.owner) && m.owner!==currentUser) return false;
     if(mktFilterArea && (m.area||"")!==mktFilterArea) return false;
     if(mktFilterKind && (m.kind||"")!==mktFilterKind) return false;
     return true;
   });
+  if(getBlockedOwners().length){ h += '<div class="mktnote">🚫 '+getBlockedOwners().length+' '+mktL("hiddenNote")+' <a href="#" onclick="unblockAllOwners();return false;">'+mktL("unhide")+'</a></div>'; }
   h += '<div class="listhead">'+t("mktAll")+'（'+shown.length+'）</div>';
   if(!shown.length) return h + '<div class="empty">'+t("mktNone")+'</div>';
   shown.forEach(function(m){
@@ -1176,7 +1178,7 @@ function marketListHtml(){
       + (m.area? '<div class="mmeta">📍 '+esc(m.area)+'</div>':'')
       + (m.contact? '<div class="mmeta">📞 '+esc(m.contact)+'</div>':'')
       + '<div class="mowner">'+esc(m.ownerName||"")+'</div>'
-      + (mine? '<button class="del medit" onclick="openMForm(\''+m.key+'\')" title="edit">✏️</button><button class="del" onclick="removeMarket(\''+m.key+'\')">🗑</button>':'')
+      + (mine? '<button class="del medit" onclick="openMForm(\''+m.key+'\')" title="edit">✏️</button><button class="del" onclick="removeMarket(\''+m.key+'\')">🗑</button>' : '<button class="del medit" onclick="reportMarket(\''+m.key+'\')" title="'+mktL("report")+'">🚩</button><button class="del" onclick="hideMarketOwner(\''+m.key+'\')" title="'+mktL("hide")+'">🚫</button>')
       + '</div></div>';
   });
   return h;
@@ -1239,6 +1241,40 @@ async function removeMarket(key){
   if(!confirm(msg)) return;
   await delMarketItem(key); await loadMarket(); render();
 }
+
+// ====== 通報・非表示（コンテンツモデレーション） ======
+const MKT_L = {
+  ja:{report:"通報", hide:"非表示", confReport:"この出品を不適切な内容として通報しますか？", doneReport:"通報しました。ご協力ありがとうございます。運営が確認します。", confHide:"この出品者の出品を今後表示しないようにしますか？", hiddenNote:"人の出品者を非表示にしています。", unhide:"表示に戻す"},
+  en:{report:"Report", hide:"Hide", confReport:"Report this listing as inappropriate?", doneReport:"Reported. Thank you — our team will review it.", confHide:"Hide all listings from this seller?", hiddenNote:"seller(s) hidden.", unhide:"Show again"},
+  ar:{report:"إبلاغ", hide:"إخفاء", confReport:"هل تريد الإبلاغ عن هذا الإعلان كمحتوى غير لائق؟", doneReport:"تم الإبلاغ. شكراً لتعاونك، سيراجعه فريق الإدارة.", confHide:"إخفاء جميع إعلانات هذا البائع؟", hiddenNote:"بائع/بائعون مخفيون.", unhide:"إظهار مرة أخرى"},
+  ur:{report:"رپورٹ", hide:"چھپائیں", confReport:"کیا اس اشتہار کو نامناسب مواد کے طور پر رپورٹ کریں؟", doneReport:"رپورٹ ہو گئی۔ شکریہ — ٹیم جائزہ لے گی۔", confHide:"اس فروخت کنندہ کے تمام اشتہارات چھپائیں؟", hiddenNote:"فروخت کنندہ چھپائے گئے ہیں۔", unhide:"دوبارہ دکھائیں"}
+};
+function mktL(k){ var d = MKT_L[lang]||MKT_L.en; return d[k]||MKT_L.en[k]||""; }
+function getBlockedOwners(){ try{ var a = JSON.parse(localStorage.getItem("car-blocked-owners")||"[]"); return Array.isArray(a)?a:[]; }catch(_){ return []; } }
+function isBlockedOwner(o){ return !!o && getBlockedOwners().indexOf(o)>=0; }
+function saveBlockedOwners(a){ try{ localStorage.setItem("car-blocked-owners", JSON.stringify(a)); }catch(_){} }
+async function reportMarket(key){
+  var item = null;
+  for(var i=0;i<market.length;i++){ if(market[i].key===key){ item = market[i]; break; } }
+  if(!item) return;
+  if(!confirm(mktL("confReport"))) return;
+  try{
+    await fetch(FIREBASE_URL + "/car-kanri/reports.json", {method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ itemKey:key, itemName:item.name||"", owner:item.owner||"", reporter:currentUser||"", ts:Date.now() })});
+  }catch(e){}
+  alert(mktL("doneReport"));
+}
+function hideMarketOwner(key){
+  var item = null;
+  for(var i=0;i<market.length;i++){ if(market[i].key===key){ item = market[i]; break; } }
+  if(!item || !item.owner) return;
+  if(!confirm(mktL("confHide"))) return;
+  var a = getBlockedOwners();
+  if(a.indexOf(item.owner)<0) a.push(item.owner);
+  saveBlockedOwners(a);
+  render();
+}
+function unblockAllOwners(){ saveBlockedOwners([]); render(); }
 
 // ====== お知らせ（予定の時間に通知） ======
 let notifiedIds = {};
