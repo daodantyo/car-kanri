@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.sheerjp.carmanager",
+    "sha256_cert_fingerprints": ["35:4F:1B:5E:1F:30:26:55:4D:3A:C8:1F:99:54:7A:F6:71:70:E8:43:75:D1:56:D9:72:57:F9:9C:3C:DD:30:35"]
+  }
+}]
